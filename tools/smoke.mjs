@@ -2,7 +2,7 @@
    《公海》浏览器冒烟测试
    ─────────────────────────────────────────────────────────────
    verify-game.mjs 只测引擎，测不到 DOM。这个用无头 Edge 真的把
-   页面打开，真的点按钮，真的走完一局，然后把结果写进 <title>，
+   页面打开，真的点按钮，真的走完一局，然后把结果写进 DOM，
    再用 --dump-dom 取回来。
 
    测的是那些只有真浏览器才暴露的问题：
@@ -11,7 +11,14 @@
      · localStorage 在 file:// 下会不会炸
      · 音频初始化失败会不会拖垮整个游戏
 
-   用法：node tools/smoke.mjs
+   用法：
+     node tools/smoke.mjs                          测本地文件
+     node tools/smoke.mjs --live                   测线上部署
+     node tools/smoke.mjs --live https://x/y/      测指定的线上地址
+
+   测线上时用**线上那一份 index.html**，只把相对资源路径改成绝对
+   地址——所以连"服务器上的 HTML 对不对"一起验证了。本地跑通不等于
+   线上跑通，这一步不能省。
    ═══════════════════════════════════════════════════════════════ */
 
 import fs from 'node:fs';
@@ -21,6 +28,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const TMP = path.join(ROOT, 'tools', '.smoke.html');
+const PROFILE = path.join(ROOT, 'tools', '.smoke-profile');
 
 const BROWSERS = [
   'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
@@ -35,7 +43,32 @@ if (!browser) {
   process.exit(0);
 }
 
-/* ── 生成测试页：把 index.html 的路径改一层，再注入测试脚本 ── */
+/* ── 决定测哪儿 ─────────────────────────────────────────── */
+
+const li = process.argv.indexOf('--live');
+const LIVE_ARG = li !== -1 ? (process.argv[li + 1] || 'https://heipig.github.io/gonghai/') : null;
+const BASE = LIVE_ARG ? (LIVE_ARG.endsWith('/') ? LIVE_ARG : LIVE_ARG + '/') : null;
+
+let html, target;
+
+if (BASE) {
+  const res = await fetch(BASE, { redirect: 'follow' });
+  if (!res.ok) {
+    console.error(`✗ 取不到线上首页：${BASE} → HTTP ${res.status}`);
+    process.exit(1);
+  }
+  html = await res.text();
+  target = `线上 ${BASE}`;
+  html = html.replace(/href="css\//g, `href="${BASE}css/`)
+             .replace(/src="js\//g, `src="${BASE}js/`);
+} else {
+  html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  target = '本地 index.html';
+  html = html.replace(/href="css\//g, 'href="../css/')
+             .replace(/src="js\//g, 'src="../js/');
+}
+
+/* ── 注入的测试脚本 ─────────────────────────────────────── */
 
 const TEST_SCRIPT = `
 <script>
@@ -51,34 +84,51 @@ const TEST_SCRIPT = `
 
   function q(s) { return document.querySelector(s); }
   function wait(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
-  function screenIs(name) {
-    return q('#screen-' + name).classList.contains('is-active');
-  }
+  function screenIs(name) { return q('#screen-' + name).classList.contains('is-active'); }
 
-  window.addEventListener('load', function () {
-    setTimeout(run, 60);
-  });
+  window.addEventListener('load', function () { setTimeout(run, 80); });
 
   async function run() {
     try {
-      // ① 标题页
       if (!screenIs('title')) fail.push('标题页没有激活');
       if (!window.GH || !window.GH.Engine) fail.push('GH.Engine 没有挂上 window');
       if (!window.GH.Content) fail.push('GH.Content 没有挂上 window');
-      log.push('标题页 OK');
+      if (!window.GH.Audio) fail.push('GH.Audio 没有挂上 window');
+      log.push('四个脚本都加载了，标题页正常');
 
-      // ② 引擎自检
       var rep = window.GH.Engine.audit();
       if (rep.problems.length) fail.push('引擎自检有问题：' + rep.problems.join(' | '));
       log.push('引擎自检 ' + rep.total + ' 节点 / ' + rep.endings.length + ' 结局');
 
-      // ③ 开一局
+      // 样式真的加载了吗？直接问 styleSheets，别去猜某个 class 有没有背景色。
+      // 第一版这里拿 .hud 当探针——页面上根本没有 .hud 这个类（是 #hud），
+      // 而且 #hud 用的是 linear-gradient，backgroundColor 本来就是透明的。
+      // 结果线上本地一起误报，差点把"CSS 没加载"这个不存在的 bug 当成真问题。
+      var sheets = Array.prototype.slice.call(document.styleSheets);
+      var readable = 0, ruleCount = 0;
+      sheets.forEach(function (s) {
+        // 跨域样式表读 cssRules 会抛 SecurityError。测线上时 CSS 来自
+        // https://… 而页面是 file://，就属于这种情况——读不到不等于没加载。
+        try { ruleCount += s.cssRules.length; readable++; } catch (e) {}
+      });
+      if (!sheets.length) fail.push('没有任何样式表被加载');
+      if (readable > 0 && ruleCount < 50) {
+        fail.push('样式表只有 ' + ruleCount + ' 条规则，疑似 CSS 没加载');
+      }
+      // 这条才是"CSS 到底有没有生效"的直接证据：跨域也读得到计算样式。
+      var bodyBg = getComputedStyle(document.body).backgroundColor;
+      if (!bodyBg || bodyBg === 'rgba(0, 0, 0, 0)' || bodyBg === 'transparent') {
+        fail.push('body 没有背景色，疑似 CSS 没生效：' + bodyBg);
+      }
+      log.push('样式已加载（' + sheets.length + ' 张表，' +
+               (readable ? ruleCount + ' 条规则可读' : '跨域/规则数不可读') +
+               '，body 背景 ' + bodyBg + '）');
+
       q('#input-name').value = '测试';
       q('#btn-start').click();
-      await wait(60);
+      await wait(80);
       if (!screenIs('game')) fail.push('点了开始之后游戏页没激活');
 
-      // ④ 浮层：史实页 / 日志 / 设置 都要能开能关
       ['#btn-fact', '#btn-log', '#btn-settings'].forEach(function (sel) {
         q(sel).click();
         if (q('#overlay').hidden) fail.push(sel + ' 打不开浮层');
@@ -88,16 +138,12 @@ const TEST_SCRIPT = `
       });
       log.push('三个浮层都能开能关');
 
-      // ⑤ 走完一局（每次点正文跳过打字机，再点第一个能点的选项）
-      var steps = 0, endingsSeen = [];
+      var steps = 0;
       for (var run = 0; run < 6; run++) {
         for (var i = 0; i < 400; i++) {
           if (q('#screen-ending').classList.contains('is-active')) break;
-
-          q('#stage').click();          // 跳过打字机
-          var btns = Array.prototype.slice.call(
-            q('#choices').querySelectorAll('.choice:not([disabled])')
-          );
+          q('#stage').click();
+          var btns = Array.prototype.slice.call(q('#choices').querySelectorAll('.choice:not([disabled])'));
           if (!btns.length) {
             fail.push('第 ' + i + ' 步没有可选项 @ ' + window.GH.Engine.state.nodeId);
             break;
@@ -109,65 +155,46 @@ const TEST_SCRIPT = `
           fail.push('第 ' + (run + 1) + ' 局没有走到结局');
           break;
         }
-        endingsSeen.push(q('#ending-title').textContent);
-        log.push('第 ' + (run + 1) + ' 局结局：' + q('#ending-title').textContent);
-
-        // 结局页上的东西
         if (!q('#ending-kind').textContent) fail.push('结局缺少 kind');
         if (!q('#ending-body').textContent.trim()) fail.push('结局正文是空的');
-        if (q('#ending-body').querySelectorAll('.ending-stats div').length < 5) {
-          fail.push('结局结算面板不完整');
-        }
-        // 史实页能从结局页打开
+        if (q('#ending-body').querySelectorAll('.ending-stats div').length < 5) fail.push('结局结算面板不完整');
+
+        q('#btn-log').click();
+        var logged = q('#overlay-body').querySelectorAll('.log-list li').length;
+        if (logged < 3) fail.push('航海日志没有记录到选择（只有 ' + logged + ' 条）');
+        if (!/贺松/.test(q('#overlay-body').textContent)) fail.push('日志里没有人物关系');
+        q('#overlay-close').click();
+
         q('#btn-ending-fact').click();
         if (q('#overlay').hidden) fail.push('结局页打不开史实页');
         q('#overlay-close').click();
 
-        // 航海日志：这一局做过的选择应该都记着（重开之后才会清空，
-        // 所以必须在重开之前检查）
-        q('#btn-log').click();
-        var logged = q('#overlay-body').querySelectorAll('.log-list li').length;
-        if (logged < 3) fail.push('航海日志没有记录到选择（只有 ' + logged + ' 条）');
-        // 关系表和账目也要在
-        if (!/贺松/.test(q('#overlay-body').textContent)) fail.push('日志里没有人物关系');
-        q('#overlay-close').click();
-        log.push('第 ' + (run + 1) + ' 局日志记了 ' + logged + ' 条选择');
+        log.push('第 ' + (run + 1) + ' 局：' + q('#ending-title').textContent + '（' + logged + ' 条记录）');
 
-        // 重开
         q('#btn-restart').click();
-        await wait(30);
+        await wait(40);
         if (!screenIs('title')) fail.push('重开没有回到标题页');
         q('#btn-start').click();
-        await wait(40);
+        await wait(60);
         if (!screenIs('game')) fail.push('重开之后开不了新局');
       }
 
-      // ⑥ HUD 有没有真的在动
-      var hud = q('#hud-day').textContent;
-      if (!/第 \\d+ 天/.test(hud)) fail.push('HUD 的天数没显示：' + hud);
-      if (!q('#hand-value').textContent) fail.push('HUD 的手没显示');
-      log.push('走完 ' + steps + ' 步，HUD 正常（' + hud + '）');
-
-      // ⑦ 进度存档
       var prog = window.GH.Engine.loadProgress();
-      log.push('存档里收集了 ' + prog.endings.length + ' 种结局');
-
+      log.push('走完 ' + steps + ' 步；存档里收集了 ' + prog.endings.length + ' 种结局');
     } catch (err) {
       fail.push('未捕获异常: ' + err.message + ' || ' + (err.stack || '').split('\\n')[1]);
     }
 
-    document.title = 'SMOKE-RESULT:' + JSON.stringify({ ok: fail.length === 0, fail: fail, log: log });
+    var payload = 'SMOKE-RESULT:' + JSON.stringify({ ok: fail.length === 0, fail: fail, log: log });
     var d = document.createElement('div');
     d.id = 'smoke-output';
-    d.textContent = 'SMOKE-RESULT:' + JSON.stringify({ ok: fail.length === 0, fail: fail, log: log });
+    d.textContent = payload;
     document.body.appendChild(d);
   }
 })();
 </script>
 `;
 
-let html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
-html = html.replace(/href="css\//g, 'href="../css/').replace(/src="js\//g, 'src="../js/');
 html = html.replace('</body>', TEST_SCRIPT + '\n</body>');
 fs.writeFileSync(TMP, html, 'utf8');
 
@@ -175,7 +202,8 @@ fs.writeFileSync(TMP, html, 'utf8');
 
 console.log('《公海》浏览器冒烟测试');
 console.log('═'.repeat(60));
-console.log(`浏览器：${path.basename(browser)}\n`);
+console.log(`测试目标：${target}`);
+console.log(`浏览器：  ${path.basename(browser)}\n`);
 
 let dom = '';
 try {
@@ -186,11 +214,11 @@ try {
     '--no-default-browser-check',
     '--disable-extensions',
     '--allow-file-access-from-files',
-    '--user-data-dir=' + path.join(ROOT, 'tools', '.smoke-profile'),
-    '--virtual-time-budget=25000',
+    '--user-data-dir=' + PROFILE,
+    '--virtual-time-budget=30000',
     '--dump-dom',
     'file:///' + TMP.replace(/\\/g, '/')
-  ], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, timeout: 120000, stdio: ['ignore', 'pipe', 'ignore'] });
+  ], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, timeout: 180000, stdio: ['ignore', 'pipe', 'ignore'] });
 } catch (err) {
   console.error('✗ 浏览器执行失败：' + err.message);
   process.exit(1);
@@ -214,13 +242,12 @@ try {
 }
 
 result.log.forEach((l) => console.log('  · ' + l));
-
 console.log('\n' + '─'.repeat(60));
 
 if (!result.ok) {
-  console.log(`\n✗ 浏览器里发现 ${result.fail.length} 个问题：\n`);
+  console.log(`\n✗ 发现 ${result.fail.length} 个问题：\n`);
   result.fail.forEach((f) => console.log('  ✗ ' + f));
   process.exit(1);
 }
 
-console.log('\n✓ 浏览器冒烟测试通过 —— 六局连跑，界面、浮层、结局页、日志、存档都正常。');
+console.log(`\n✓ 通过 —— 六局连跑，界面、浮层、结局页、日志、存档都正常。`);

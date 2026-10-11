@@ -254,15 +254,25 @@ console.log(`  CRLF：${crlf === 0 ? '✓ 全部 LF' : '✗ ' + crlf + ' 个'}`)
 /* ── 五、联网检查（避坑清单 10.7）──────────────────────── */
 
 console.log('\n五、联网检查（本作承诺不联网）\n');
-let netHits = 0;
+
+/* 只查**玩家浏览器里真正会跑的东西**：index.html + css/ + js/。
+   tools/ 下的验证脚本本身当然要联网——冒烟测试就是要去抓线上页面。
+   把工具一起扫，这条检查会永远亮红灯，然后被人忽略；
+   一条永远报警的检查等于没有检查。 */
+const shipped = (f) => {
+  const r = rel(f);
+  return r === 'index.html' || r.startsWith('css/') || r.startsWith('js/');
+};
+
+let netHits = 0, scanned = 0;
 files.forEach((f) => {
-  if (!/\.(js|mjs|html|css)$/.test(f)) return;
+  if (!shipped(f)) return;
+  scanned++;
   const text = fs.readFileSync(f, 'utf8');
   // 允许的例外：史实页里引用新闻报道的外链，以及 SVG 命名空间
-  const lines = text.split('\n');
-  lines.forEach((line, i) => {
+  text.split('\n').forEach((line, i) => {
     if (/https?:\/\//.test(line)) {
-      const allowed = /www\.w3\.org|news\.ifeng\.com|epaper\.gmw\.cn|china\.haiwainet\.cn|em short|github\.com|target="_blank"/.test(line);
+      const allowed = /www\.w3\.org|news\.ifeng\.com|epaper\.gmw\.cn|china\.haiwainet\.cn|target="_blank"/.test(line);
       if (!allowed) {
         netHits++;
         problems.push(`疑似外部请求：${rel(f)}:${i + 1}`);
@@ -271,7 +281,10 @@ files.forEach((f) => {
     }
   });
 });
-if (!netHits) console.log('  ✓ 代码里没有任何运行时外部请求（史实页的引用链接除外）');
+if (!netHits) {
+  console.log(`  ✓ 游戏代码（${scanned} 个文件）里没有任何运行时外部请求`);
+  console.log('    （史实页引用新闻来源的外链除外，那是给玩家点出去看的，不是页面去抓的）');
+}
 
 /* ── 结论 ───────────────────────────────────────────────── */
 
