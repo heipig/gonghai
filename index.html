@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>公海</title>
+<meta name="description" content="一艘渔船，三十三个人，一片没有法庭的海。一部基于真实远洋渔船事件的虚构互动小说。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23070b10'/%3E%3Cpath d='M2 21q4-4 8 0t8 0 8 0' stroke='%234fa8b8' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ══════════════ 标题页 ══════════════ -->
+<section id="screen-title" class="screen is-active">
+  <div class="sea-bg" aria-hidden="true"></div>
+  <div class="title-inner">
+    <h1 class="title">公&nbsp;海</h1>
+    <p class="subtitle">三十三个人，一条船，一片没有法庭的海</p>
+    <p class="disclaimer">虚构故事 · 取材自真实远洋渔船事件</p>
+
+    <div class="title-form">
+      <label for="input-name">你的名字</label>
+      <input id="input-name" type="text" maxlength="8" value="阿生" autocomplete="off" spellcheck="false">
+      <button id="btn-start" class="btn btn-primary">开&nbsp;始&nbsp;航&nbsp;行</button>
+      <button id="btn-continue" class="btn btn-ghost" hidden>继续上次航行</button>
+    </div>
+
+    <nav class="title-links">
+      <button class="link" data-open="fact">关于这起事件</button>
+      <span class="dot">·</span>
+      <button class="link" data-open="settings">设置</button>
+      <span class="dot">·</span>
+      <button class="link" data-open="about">关于本作</button>
+    </nav>
+  </div>
+</section>
+
+<!-- ══════════════ 游戏页 ══════════════ -->
+<section id="screen-game" class="screen">
+  <div class="sea-bg" aria-hidden="true"></div>
+  <div class="vignette" id="vignette" aria-hidden="true"></div>
+
+  <header id="hud">
+    <div class="hud-row">
+      <div class="hud-date">
+        <span id="hud-ship">鲁荣渔 7451</span>
+        <span id="hud-day" class="hud-day"></span>
+      </div>
+      <div class="hud-actions">
+        <button class="icon-btn" id="btn-fact" title="关于这起事件">史实</button>
+        <button class="icon-btn" id="btn-log" title="航海日志">日志</button>
+        <button class="icon-btn" id="btn-settings" title="设置">设置</button>
+      </div>
+    </div>
+    <div class="meters" id="meters">
+      <div class="meter" data-meter="body">
+        <span class="meter-label">体力</span>
+        <span class="meter-track"><i class="meter-fill"></i></span>
+      </div>
+      <div class="meter" data-meter="standing">
+        <span class="meter-label">处境</span>
+        <span class="meter-track"><i class="meter-fill"></i></span>
+      </div>
+      <div class="meter meter-hand" data-meter="hand">
+        <span class="meter-label">手</span>
+        <span class="meter-value" id="hand-value">干净</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="stage">
+    <div id="chapter-label"></div>
+    <div id="text" aria-live="polite"></div>
+    <div id="choices"></div>
+    <p id="skip-hint" class="skip-hint" hidden>点击任意处继续</p>
+  </main>
+</section>
+
+<!-- ══════════════ 通用浮层 ══════════════ -->
+<div id="overlay" class="overlay" hidden>
+  <div class="overlay-panel" role="dialog" aria-modal="true" aria-labelledby="overlay-title">
+    <div class="overlay-head">
+      <h2 id="overlay-title"></h2>
+      <button id="overlay-close" class="icon-btn" aria-label="关闭">✕</button>
+    </div>
+    <div class="overlay-body" id="overlay-body"></div>
+  </div>
+</div>
+
+<!-- ══════════════ 结局页 ══════════════ -->
+<section id="screen-ending" class="screen">
+  <div class="sea-bg" aria-hidden="true"></div>
+  <div class="ending-inner">
+    <p class="ending-kind" id="ending-kind"></p>
+    <h2 class="ending-title" id="ending-title"></h2>
+    <div class="ending-body" id="ending-body"></div>
+    <div class="ending-actions">
+      <button class="btn btn-primary" id="btn-restart">再走一次这条航路</button>
+      <button class="btn btn-ghost" id="btn-ending-fact">关于这起事件</button>
+    </div>
+  </div>
+</section>
+
+<script src="js/audio.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/story-act1.js"></script>
+<script src="js/story-act2.js"></script>
+<script src="js/story-act3.js"></script>
+<script src="js/storylets.js"></script>
+<script src="js/content.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

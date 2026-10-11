@@ -1,0 +1,22 @@
+{
+  "name": "gonghai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "《公海》——一部关于远洋渔船事件的虚构中文文字游戏。纯前端、单机、不联网。",
+  "homepage": "https://heipig.github.io/gonghai/",
+  "license": "MIT",
+  "author": "heipig",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heipig/gonghai.git"
+  },
+  "keywords": ["interactive-fiction", "text-game", "chinese", "game", "no-dependencies"],
+  "scripts": {
+    "verify": "node tools/verify-game.mjs",
+    "smoke": "node tools/smoke.mjs",
+    "repo": "node tools/verify-repo.mjs",
+    "check": "node tools/verify-game.mjs && node tools/smoke.mjs && node tools/verify-repo.mjs"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}

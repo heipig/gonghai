@@ -1,0 +1,41 @@
+# ── 依赖与构建产物（本项目无依赖、无构建，保留规则以防将来引入）──
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+.cache/
+.parcel-cache/
+
+# ── 编辑器与系统 ──
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*~
+
+# ── 日志与临时文件 ──
+*.log
+npm-debug.log*
+logs/
+tmp/
+temp/
+
+# ── 测试中间产物 ──
+.smoke.html
+.smoke-profile/
+
+# ── 本地环境变量：绝不入库 ──
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.json
+
+# ── 个人笔记 / 经验文档：刻意不入库 ──
+# （依作者本人的避坑清单第 6.6 / 7 节，这类文档留在本地）
+notes/
+私人*
+个人*
