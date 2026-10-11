@@ -54,8 +54,13 @@
 
   /* 配图位模式：?slots=1 打开。
      未配图的节点会显示一个虚线框，里面是这张图该画什么。
-     这样后面补图的时候不用翻源码找位置。 */
-  var showSlots = /[?&]slots=1/.test(location.search);
+     这样后面补图的时候不用翻源码找位置。
+
+     写成函数而不是常量：冒烟测试需要在页面加载之后才能打开它，
+     而只读一次的常量做不到。 */
+  function slotsOn() {
+    return /[?&]slots=1/.test(location.search) || window.GH_FORCE_SLOTS === true;
+  }
 
   /* ── 配图 ──────────────────────────────────────────────── */
 
@@ -80,10 +85,10 @@
       return;
     }
 
-    if (node.imgSlot && showSlots) {
+    if (node.imgSlot && slotsOn()) {
       var slot = document.createElement('div');
       slot.className = 'img-slot';
-      slot.textContent = '［配图位］' + node.imgSlot;
+      slot.textContent = node.imgSlot;
       box.appendChild(slot);
       box.hidden = false;
     }

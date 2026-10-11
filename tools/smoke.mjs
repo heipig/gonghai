@@ -49,6 +49,10 @@ const li = process.argv.indexOf('--live');
 const LIVE_ARG = li !== -1 ? (process.argv[li + 1] || 'https://heipig.github.io/gonghai/') : null;
 const BASE = LIVE_ARG ? (LIVE_ARG.endsWith('/') ? LIVE_ARG : LIVE_ARG + '/') : null;
 
+/* --slots：连配图位标记一起测。默认关闭——正常玩家看到的是没有标记的版本，
+   这一点本身也要测（标记漏出去就是 bug）。 */
+const SLOTS = process.argv.includes('--slots');
+
 let html, target;
 
 if (BASE) {
@@ -72,8 +76,15 @@ if (BASE) {
 
 const TEST_SCRIPT = `
 <script>
+ window.GH_FORCE_SLOTS = ${SLOTS ? 'true' : 'false'};
+</script>
+<script>
 (function () {
   var fail = [], log = [];
+
+  // 这一次运行期望看到配图位标记吗？（--slots 打开时才期望）
+  var wantSlots = window.GH_FORCE_SLOTS === true;
+  var sawSlot = false;
 
   window.addEventListener('error', function (e) {
     fail.push('JS 错误: ' + e.message + ' @ ' + (e.filename || '?') + ':' + e.lineno);
@@ -151,6 +162,7 @@ const TEST_SCRIPT = `
             sawFigure = true;
             if (figImg.complete && figImg.naturalWidth === 0) brokenImg++;
           }
+          if (q('#figure .img-slot')) sawSlot = true;
           var btns = Array.prototype.slice.call(q('#choices').querySelectorAll('.choice:not([disabled])'));
           if (!btns.length) {
             fail.push('第 ' + i + ' 步没有可选项 @ ' + window.GH.Engine.state.nodeId);
@@ -191,6 +203,14 @@ const TEST_SCRIPT = `
       if (!sawFigure) fail.push('六局都没有渲染出任何配图（#figure 一直是空的）');
       if (brokenImg) fail.push('有 ' + brokenImg + ' 次配图加载失败（img 的 naturalWidth 为 0）');
       log.push('配图渲染：' + (sawFigure ? '出现过' : '从未出现') + (brokenImg ? '，坏图 ' + brokenImg + ' 次' : '，无坏图'));
+
+      // 配图位标记必须双向正确：开了要有，没开就不能漏出来。
+      // 只测正向的话，一个"永远显示标记"的实现也能通过——
+      // 那意味着玩家会在正式版里看到一堆"［配图位］"。
+      if (wantSlots && !sawSlot) fail.push('开了 --slots，但整局都没有出现配图位标记');
+      if (!wantSlots && sawSlot) fail.push('没有开 --slots，配图位标记却漏到了玩家视角');
+      log.push('配图位标记：' + (wantSlots ? '本次打开' : '本次关闭') + '，实际' + (sawSlot ? '出现' : '未出现'));
+
       log.push('走完 ' + steps + ' 步；存档里收集了 ' + prog.endings.length + ' 种结局');
     } catch (err) {
       fail.push('未捕获异常: ' + err.message + ' || ' + (err.stack || '').split('\\n')[1]);
