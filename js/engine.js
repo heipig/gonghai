@@ -27,12 +27,13 @@
 
   var GH = (window.GH = window.GH || {});
 
-  var SAVE_KEY = 'gonghai.save.v2';
+  var SAVE_KEY = 'gonghai.save.v3';
   var SETTINGS_KEY = 'gonghai.settings.v1';
   var PROGRESS_KEY = 'gonghai.progress.v1';
 
-  /* 船上你会在意的那几个人。关系值域 -5 .. +5。 */
-  var PEOPLE = ['he', 'bayaer', 'dayong', 'captain', 'han', 'ge'];
+  /* 船上你会在意的那几个人。关系值域 -5 .. +5。
+     全部是真实姓名——这一版不再虚构化。 */
+  var PEOPLE = ['liu', 'ma', 'zhao', 'cui', 'huang', 'captain'];
 
   var Engine = {
     nodes: {},
@@ -68,7 +69,7 @@
       standing: 50,     // 处境：这条船上还有没有人拿你当自己人
       blood: 0,         // 沾血次数。0 = 手是干净的
       kills: 0,
-      smokes: 30,       // 烟。船上的硬通货
+      smokes: 5,        // 烟。船上的硬通货
       rel: rel,         // 逐人关系 -5..+5
       flags: {},
       visited: [],
@@ -136,6 +137,14 @@
      从劫船那一刻（第 172 天）起，命才是真的会丢的。 */
   Engine.GRACE_UNTIL_DAY = 172;
   Engine.GRACE_FLOOR = 14;
+
+  /* 关于数值平衡：
+     这里**没有**全局缩放系数。第一版试过加一个，结果是"要么全活、
+     要么全死"——因为各选项之间的体力花费只差 1.3 倍，任何线性
+     缩放都只是把整条曲线上下平移，改变不了方差。
+
+     真正管用的是两件事：夜航节点的固定恢复量（见各 act 的 onEnter），
+     以及"轻松选项"和"硬选项"之间要拉开差距。要调手感，调这两个。 */
 
   Engine.floorFor = function () {
     var s = this.state;

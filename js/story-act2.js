@@ -1,264 +1,365 @@
 /* ═══════════════════════════════════════════════════════════════
-   《公海》第二幕 · 归航
-   疑心 → 沾血要求 → 索钱 → 剿灭管理层 → 内讧之夜
+   《公海》第二幕  劫船 → 剿灭管理层 → 内斗
+   2011 年 6 月 16 日 — 7 月 24 日
+   ─────────────────────────────────────────────────────────────
+   素材同第一幕。老夏之死、温斗温密、王永波、马玉超失踪、
+   崔勇投诚、黄金波告密、包德之死，全部按庭审记录走。
    ═══════════════════════════════════════════════════════════════ */
 
 (function () {
-  'use strict';
+  var E = window.GH.Engine;
 
-  var A = '第二幕 · 归航';
+  E.register({
 
-  window.GH.Engine.register({
+/* ═══════════════════ 第一条人命 ═══════════════════ */
 
-/* ── 夜航节点：第一幕收尾 ──────────────────────────────── */
-
-n_act1: {
-  id: 'n_act1', act: A, date: '2011 年 6 月下旬', place: '鲁荣渔 7451 · 归航途中',
-  mood: 'tense', ambience: 'engine',
-  onEnter: { body: +7, standing: +3 },
-  night: { pool: 'act1', draws: 3, then: 'a2_trust' },
+a2_hijack: {
+  id: 'a2_hijack', act: '第二幕', place: '甲板', date: '2011 年 6 月 16 日 23:00',
+  mood: 'blood', ambience: 'sea-tense', day: 172, img: 'img/hijack.jpg',
   text: [
-    '船往东走，绕夏威夷，再一路往西。',
-    '顺利的话，五十天到中国。',
-    '第一个晚上没人睡。第二个晚上开始，日子又变回了日子——干活，吃饭，值班，打牌。',
-    '只是夜里，总有人来找你。'
-  ]
-},
-
-a2_trust: {
-  id: 'a2_trust', act: A, day: 182, date: '2011 年 6 月下旬', place: '鲁荣渔 7451 · 过道',
-  mood: 'tense', ambience: 'sea-tense',
-  text: [
-    '老周死了二十多天。贺松没再跟你说过一句话。',
-    '他跟他那伙人聚在一堆，说这说那，还不许别人说悄悄话。',
-    '他从你身边走过去的时候，你听见他在跟周满说：',
-    { t: '「那几个又在后边捅咕。不敢大声，怕让人听见。」', cls: 'q' },
-    '其实没什么。他们都是船长叫上船的大连老乡，本来关系就好，总在一块。',
-    '但贺松的疑心是真的。他疑心的不是具体的人，是"有人在说话而我不知道"。',
-    '这几天船的油耗比平时多了好几倍，辅机也少了几个。贺松天天骂：到底咋回事。'
+    '船上的大灯很亮，晃得人眼睛疼。',
+    '舷梯一边一个人守着，拿把刀。',
+    '黄金波这几天因为贫血晕倒过。今晚他把鞋都穿立正了。'
   ],
   choices: [
-    { label: '去查油耗。看看到底是谁在动机器。',
-      to: 'n_act2a',
-      effect: { body: -8, standing: +5, flags: { investigated_engine: true } } },
-    { label: '跟贺松说：你别疑心了，这么下去先乱的是你自己。',
-      to: 'n_act2a',
-      effect: { rel: { he: -1 }, standing: -3, body: -2, flags: { warned_he_paranoia: true } } },
-    { label: '什么都不做。疑心是别人的病。',
-      to: 'n_act2a',
-      effect: { body: +3, standing: -6, flags: { let_paranoia_run: true } } },
-    { label: '去告诉船长：贺松在疑心你们。',
-      to: 'n_act2a',
-      effect: { rel: { captain: +3, he: -3 }, standing: -8, flags: { double_agent: true } },
-      tone: 'risk' }
+    { label: '站在原地。', to: 'a2_xia',
+      effect: { body: -4 } },
+    { label: '往大甲板走。', to: 'a2_xia',
+      effect: { body: -2, standing: +1 } },
+    { label: '把马玉超从下铺拉起来，带在身边。', to: 'a2_xia',
+      effect: { rel: { ma: +2 }, body: -5, flags: { kept_ma_close: true } } }
   ]
 },
 
-n_act2a: {
-  id: 'n_act2a', act: A, date: '2011 年 6 月底', place: '鲁荣渔 7451 · 夜',
-  mood: 'tense', ambience: 'sea-tense',
-  onEnter: { body: +7, standing: +3 },
-  night: { pool: 'act2', draws: 2, then: 'a2_demand' },
+a2_xia: {
+  id: 'a2_xia', act: '第二幕', place: '舵楼', date: '2011 年 6 月 16 日 23:20',
+  mood: 'blood', ambience: 'sea-tense', day: 172, img: 'img/barrel.jpg',
   text: [
-    '这天晚上，贺松让周满来叫你。',
-    '他说，松哥在船长室等你。',
-    '你走过去的那几步，甲板上没有一个人看你。他们都低着头。'
-  ]
-},
-
-/* ── 核心抉择二：沾血 ─────────────────────────────────── */
-
-a2_demand: {
-  id: 'a2_demand', act: A, day: 190, date: '2011 年 7 月初', place: '鲁荣渔 7451 · 船长室',
-  mood: 'blood', ambience: 'sea-tense',
-  text: [
-    '船长室里只有一盏灯。贺松坐在床边，看起来很累。',
-    '他让你坐。你没坐。',
-    { t: '「我手上有七八条人命了。」他说，「剩下的人想活命，得沾点血。」', cls: 'q' },
-    '他说的"剩下的人"，是你。',
-    { t: '「你手上是干净的。你猜回去以后，警察先信谁？」', cls: 'q' },
-    '他从枕头底下拿出一把鱼刀，放在你面前的桌上，刀柄朝你。',
-    { t: '「机舱四人间那个姓田的。你去。办完了，你跟我们是一伙的。办不完，」他停了一下，「我也没办法。」', cls: 'q' },
-    '灯在晃。刀在桌上，一动不动。',
-    { t: '你想起上船前的那个夏天。你想不起来那天下没下雨。', cls: 'inner' }
+    '做饭的老夏拿把刀上去了。',
+    { t: '「这帮小逼崽子还想劫船。」', cls: 'shout' },
+    { t: '「放倒、放倒。」', cls: 'shout' },
+    '老夏往舵楼左后方的油桶跑，跑到油桶前就摔倒了。'
   ],
   choices: [
-    { label: '把刀拿起来。去机舱四人间。',
-      to: 'n_act2b',
-      effect: { blood: +1, kills: +1, standing: +16, rel: { he: +3 }, body: -12,
-                flags: { killed_tian: true } },
+    { label: '冲上去拦。', to: 'a2_deck',
+      effect: { standing: -6, body: -12, blood: 0, flags: { tried_to_stop: true } },
       tone: 'blood' },
-    { label: '「我去。但我只按住他。刀让别人拿。」',
-      to: 'n_act2b',
-      effect: { blood: +1, kills: 0, standing: +7, rel: { he: +1 }, body: -14,
-                flags: { held_him_down: true } },
-      tone: 'blood' },
-    { label: '「松哥，我去替你盯着别人。刀我不碰。」',
-      to: 'n_act2b',
-      effect: { standing: +12, rel: { he: +1 }, body: -8, flags: { stayed_clean_by_watching: true } },
-      require: { rel: { he: { min: 2 } }, why: '他不信你。这句话得他先信你才说得出口。' } },
-    { label: '「我不干。」',
-      to: 'n_act2b',
-      effect: { standing: -11, rel: { he: -3 }, body: -14, flags: { refused_blood: true } },
-      tone: 'risk' }
+    { label: '站着不动。脚钉在甲板上。', to: 'a2_deck',
+      effect: { body: -6, flags: { froze: true } } },
+    { label: '转身回舱。', to: 'a2_deck',
+      effect: { body: -3, standing: -3 } }
   ]
 },
 
-n_act2b: {
-  id: 'n_act2b', act: A, date: '2011 年 7 月', place: '鲁荣渔 7451 · 夜',
-  mood: 'blood', ambience: 'sea-tense',
-  onEnter: { body: +7, standing: +3 },
-  night: { pool: 'act2', draws: 2, then: 'a2_money' },
+a2_deck: {
+  id: 'a2_deck', act: '第二幕', place: '二层甲板', date: '2011 年 6 月 17 日 凌晨',
+  mood: 'blood', ambience: 'quiet', day: 173,
   text: [
-    '那天之后，船上的人看你的眼神变了。',
-    '有些人开始跟你说话。有些人开始不跟你说话。',
-    '你分不清哪一种更糟。'
+    '黄金波从右边过来，问你有没有烟。',
+    '递烟的时候，你发现他的手一个劲地抖。',
+    { t: '「老夏死了。」', cls: 'q' }
+  ],
+  choices: [
+    { label: '「他怎么死的。」', to: 'a2_baobao',
+      effect: { rel: { huang: +2 }, body: -4, flags: { asked_how: true } } },
+    { label: '把整包烟塞给他。', to: 'a2_baobao',
+      effect: { rel: { huang: +2 }, smokes: -1 } },
+    { label: '什么都没说。', to: 'a2_baobao',
+      effect: { body: -2 } }
   ]
 },
 
-/* ── 索钱 ─────────────────────────────────────────────── */
+a2_baobao: {
+  id: 'a2_baobao', act: '第二幕', place: '十二人间', date: '2011 年 6 月 17 日',
+  mood: 'tense', ambience: 'quiet', day: 173,
+  text: [
+    '姜晓龙在二层甲板喊你：小赵，你上来一趟。',
+    '他说：你上屋睡觉去吧，没有事儿，那谁没了，明天早晨你开始做饭。',
+    '你上去，拖鞋在甲板上放着。全是血。'
+  ],
+  choices: [
+    { label: '光脚进去。躺下。', to: 'a2_quiet',
+      effect: { body: -5, flags: { saw_slippers: true } } },
+    { label: '把拖鞋冲干净再进去。', to: 'a2_quiet',
+      effect: { body: -8, standing: +2 } },
+    { label: '找老船员包宝成说话。', to: 'a2_quiet',
+      effect: { rel: { zhao: +1 }, body: -3,
+                flags: { heard_baobao: true } } }
+  ]
+},
+
+/* ── 夜航：往回跑的十几天 ── */
+a2_quiet: {
+  id: 'a2_quiet', act: '第二幕', place: '十二人间', date: '2011 年 6 月',
+  mood: 'calm', ambience: 'sea', day: 178,
+  onEnter: { body: +18, standing: +4 },
+  night: { pool: 'act2', draws: 2, then: 'a2_wendou' },
+  text: [
+    '船开始往回跑。通讯设备拆了，救生筏用钢筋绑死。',
+    '四个人一班，每天拿刀轮流走岗，看着船长和大副。',
+    '十几天里其实挺轻松。心想着就要回家了。'
+  ]
+},
+
+/* ═══════════════════ 高音喇叭 ═══════════════════ */
+
+a2_wendou: {
+  id: 'a2_wendou', act: '第二幕', place: '十二人间', date: '2011 年 7 月 20 日',
+  mood: 'blood', ambience: 'sea-tense', day: 205, img: 'img/speaker.jpg',
+  text: [
+    '那天 12 点多天就亮了。你醒了，躺在那儿抽烟。',
+    '好几个床上没有人。',
+    '出去没到两分钟，听「啊」一声。又听噗通一声。',
+    '忽然，前面舵楼的音乐放得响，嗷嗷的。'
+  ],
+  choices: [
+    { label: '听出这是掩饰。他们在放音乐盖住声音。', to: 'a2_wang',
+      effect: { body: -5, flags: { knew_music_cover: true } } },
+    { label: '躺回去。不出声。', to: 'a2_wang',
+      effect: { body: -3, standing: -2 } },
+    { label: '下床，去找马玉超。', to: 'a2_wang',
+      effect: { body: -8, rel: { ma: +2 }, flags: { looked_for_ma: true } } }
+  ]
+},
+
+a2_wang: {
+  id: 'a2_wang', act: '第二幕', place: '寝室', date: '2011 年 7 月 20 日',
+  mood: 'blood', ambience: 'sea-tense', day: 205,
+  imgSlot: '寝室地面与行李箱之间的一双靴子特写，画面压抑，不出现伤者。',
+  text: [
+    '刘成建和包德拿刀进来，直接奔二副王永波床上。',
+    '一人扎一刀。二副醒了，拿手去够他们，没够着，掉地下。',
+    '然后刘贵夺就进来了。'
+  ],
+  choices: [
+    { label: '半躺在床上，不动。', to: 'a2_brother',
+      effect: { body: -8 } },
+    { label: '闭上眼，装睡。', to: 'a2_brother',
+      effect: { body: -5, standing: -2 } },
+    { label: '上去帮忙按住他。', to: 'a2_brother',
+      effect: { blood: +1, standing: +12, rel: { liu: +2 }, body: -14,
+                flags: { helped_kill_wang: true } },
+      tone: 'blood' }
+  ]
+},
+
+a2_brother: {
+  id: 'a2_brother', act: '第二幕', place: '寝室', date: '2011 年 7 月 20 日',
+  mood: 'blood', ambience: 'quiet', day: 205,
+  text: [
+    { t: '「哎，这不是二副嘛，你咋躺地下了？」', cls: 'q' },
+    '说一句给一刀。「肠子都淌出来了。」一刀。「这咋整？」又给一刀。',
+    '他站起来，四周看看，转过身看着你。'
+  ],
+  choices: [
+    { label: '看着他的眼睛。', to: 'a2_magone',
+      effect: { rel: { liu: +1 }, body: -10, flags: { looked_at_liu: true } } },
+    { label: '把脸转向墙。', to: 'a2_magone',
+      effect: { body: -8, standing: -2 } },
+    { label: '「刘哥。」', to: 'a2_magone',
+      effect: { rel: { liu: +2 }, body: -8, flags: { called_him_brother: true } } }
+  ]
+},
+
+a2_magone: {
+  id: 'a2_magone', act: '第二幕', place: '寝室', date: '2011 年 7 月 21 日',
+  mood: 'blood', ambience: 'deep', day: 206, img: 'img/emptybunk.jpg',
+  text: [
+    { t: '「当初让你加入你不加入，现在知道害怕了？」', cls: 'q' },
+    '他满脸带笑。又说：「你是我兄弟，我先不动你。」',
+    '天亮以后，马玉超不见了。东西都没少。'
+  ],
+  choices: [
+    { label: '问刘贵夺，马玉超去哪了。', to: 'a2_hide',
+      effect: { rel: { liu: -1 }, body: -5,
+                flags: { asked_about_ma: true } } },
+    { label: '什么都不问。你已经知道答案。', to: 'a2_hide',
+      effect: { body: -8, flags: { ma_gone: true } } },
+    { label: '去他的铺上，把那本日记收起来。', to: 'a2_hide',
+      effect: { rel: { ma: +3 }, body: -4, flags: { kept_ma_diary: true } } }
+  ]
+},
+
+a2_hide: {
+  id: 'a2_hide', act: '第二幕', place: '船上各处', date: '2011 年 7 月 21 日',
+  mood: 'blood', ambience: 'deep', day: 206,
+  text: [
+    '刘贵夺在船员面前说：他咋跳海了？没打算动他，他是我的人，是我的卧底。',
+    '你四处看了一遍，想找个地方藏起来。',
+    '船底的水舱能进去，可螺丝是拧上的，盖不上。夹板里是泡沫，爬不进去。'
+  ],
+  choices: [
+    { label: '抄一份杀人名单，藏进船底隔板。', to: 'a2_after',
+      effect: { body: -10, standing: -4,
+                flags: { hid_evidence: true } }, tone: 'risk' },
+    { label: '试着把救生筏上的钢筋弄开。', to: 'a2_after',
+      effect: { body: -14, standing: -3, flags: { tried_raft: true } } },
+    { label: '放弃。船上就这么大点地方。', to: 'a2_after',
+      effect: { body: -4, flags: { no_way_out: true } } },
+    { label: '没有一点能藏的地方。那就走马玉超那条路。', to: 'e_ma',
+      effect: { flags: { chose_the_sea: true } }, tone: 'risk' }
+  ]
+},
+
+/* ── 夜航：清洗之后的几天 ── */
+a2_after: {
+  id: 'a2_after', act: '第二幕', place: '后甲板', date: '2011 年 7 月 22 日',
+  mood: 'blood', ambience: 'sea', day: 207,
+  onEnter: { body: +18, standing: +4 },
+  night: { pool: 'act2', draws: 2, then: 'a2_cui' },
+  text: [
+    '甲板上没有一点血。他们连夜洗了。',
+    '你走来走去，不知道该干点什么。',
+    '撒尿都得先观察一阵。冷不丁推一把就下去了。'
+  ]
+},
+
+a2_cui: {
+  id: 'a2_cui', act: '第二幕', place: '后甲板', date: '2011 年 7 月 22 日',
+  mood: 'tense', ambience: 'sea-tense', day: 207,
+  text: [
+    '崔勇来找你。「你跟刘贵夺比较好，你帮我去劝劝他。」',
+    { t: '「咱俩不行加入他们得了。真有事儿的话，能往后靠就尽量往后靠。」', cls: 'q' }
+  ],
+  choices: [
+    { label: '「行。我跟你去。」', to: 'a2_jiang',
+      effect: { rel: { cui: +2 }, flags: { sought_join: true } } },
+    { label: '「我不去。你也别去。」', to: 'a2_jiang',
+      effect: { rel: { cui: -1 }, body: -3, flags: { refused_join: true } } },
+    { label: '「这事我自己拿主意。」', to: 'a2_jiang',
+      effect: { body: -5 } }
+  ]
+},
+
+a2_jiang: {
+  id: 'a2_jiang', act: '第二幕', place: '二层甲板', date: '2011 年 7 月 22 日',
+  mood: 'tense', ambience: 'quiet', day: 207,
+  text: [
+    '你们先找姜晓龙。他说：最好别加入，这事儿没法回头。',
+    { t: '「我说了不算，我自己活哪天还不知道呢。」', cls: 'q' },
+    '第二次杀人之后，刘贵夺搬进了船长室。'
+  ],
+  choices: [
+    { label: '去船长室门口喊刘哥。', to: 'a2_money',
+      effect: { flags: { asked_liu: true }, body: -4 } },
+    { label: '算了。回去做饭。', to: 'a2_money',
+      effect: { body: +3, standing: -3 } }
+  ]
+},
 
 a2_money: {
-  id: 'a2_money', act: A, day: 205, date: '2011 年 7 月中旬', place: '鲁荣渔 7451 · 甲板',
-  mood: 'tense', ambience: 'sea-tense',
+  id: 'a2_money', act: '第二幕', place: '甲板', date: '2011 年 7 月 23 日',
+  mood: 'blood', ambience: 'sea-tense', day: 208,
   text: [
-    '临近中午，贺松把全体船员叫到甲板上。',
-    { t: '「去日本要钱。你们每人假装生病，用卫星电话给家里要五千块，打到一个邮政卡上。」', cls: 'q' },
-    '甲板上没人说话。',
-    '五千块。船上大部分人家里拿不出五千块。你自己家里也拿不出。',
-    '曲志刚先开口了：',
-    { t: '「我家里真没钱，打不了。」', cls: 'q' },
-    '贺松让他多少打点。两个人吵了一架。',
-    '你忽然明白：这个电话不是要钱。是在看谁听话，谁不听话。'
+    '刘贵夺在甲板召集全体船员。他说去日本需要钱。',
+    '让每个人给家里打电话，说自己得了阑尾炎，要家里打五千块。',
+    { t: '「那个人叫韩俐。」', cls: 'q' }
   ],
   choices: [
-    { label: '打给家里。说生病了，要五千。',
-      to: 'n_act2c',
-      effect: { standing: +6, body: -6, flags: { asked_family_money: true } } },
-    { label: '打给家里，但小声说：别汇，我没事。',
-      to: 'n_act2c',
-      effect: { standing: -6, body: -3, flags: { warned_family: true } },
-      tone: 'risk' },
-    { label: '「我家里没人了。」不打。',
-      to: 'n_act2c',
-      effect: { standing: -10, body: -4, flags: { refused_money: true } } },
-    { label: '打给家里，然后当着贺松的面把电话内容重复一遍。',
-      to: 'n_act2c',
-      effect: { standing: +10, rel: { he: +2 }, body: -8, flags: { performed_loyalty: true } } }
+    { label: '给家里打。', to: 'a2_huang',
+      effect: { body: -6, standing: +2, flags: { called_home: true } } },
+    { label: '打给妈，但只说「过段时间就回去了」。', to: 'a2_huang',
+      effect: { body: -4, rel: { liu: -1 }, flags: { told_truth_home: true } } },
+    { label: '不打。把电话还回去。', to: 'a2_huang',
+      effect: { standing: -6, body: -8, flags: { refused_call: true } } }
   ]
 },
 
-n_act2c: {
-  id: 'n_act2c', act: A, date: '2011 年 7 月', place: '鲁荣渔 7451 · 深夜',
-  mood: 'tense', ambience: 'sea-tense',
-  onEnter: { body: +7, standing: +3 },
-  night: { pool: 'act2', draws: 2, then: 'a2_purge' },
+a2_huang: {
+  id: 'a2_huang', act: '第二幕', place: '船长室', date: '2011 年 7 月 24 日',
+  mood: 'blood', ambience: 'deep', day: 209,
   text: [
-    '这个电话把船上的东西搅动了。',
-    '有人打完了回来蹲在甲板上哭。有人打完了一句话不说。',
-    '当天下午，巴雅尔悄悄找了个内蒙古老乡，说了很久的话。',
-    '当天晚上，贺松也找了人。',
-    '两边都在找人。'
-  ]
-},
-
-/* ── 核心抉择三：剿灭管理层 ───────────────────────────── */
-
-a2_purge: {
-  id: 'a2_purge', act: A, day: 216, date: '2011 年 7 月 20 日 · 夜', place: '鲁荣渔 7451 · 甲板',
-  mood: 'blood', ambience: 'sea-tense',
-  text: [
-    '贺松认定管理层要动手了。他要先动手。',
-    '名单上的人都被看管着：船长邵广海、大副孙立成、二副田志国、大管轮焦德发。',
-    '他把一把刀递给你。',
-    { t: '「机舱四人间那个姓田的。你去把他叫出来。」', cls: 'q' },
-    '甲板上很暗，只有船尾一盏灯。有人在舷梯口守着，一共两个人。',
-    '你接过刀的时候，发现自己的手没抖。这件事后来让你想了很久。',
-    { t: '田志国四十七岁。上船前你跟他没说过三句话。他老婆给他缝的棉裤，膝盖上有一块补丁。', cls: 'inner' }
+    '黄金波来找刘贵夺：「有个很严重的事情，我得告诉你。」',
+    { t: '「是不是包德他们想杀了我？」', cls: 'q' },
+    '包德拉拢过黄金波：刘贵夺打算只带两三个黑龙江老乡去日本，剩下的全杀了。'
   ],
   choices: [
-    { label: '去叫。叫出来就完事。',
-      to: 'n_act2d',
-      effect: { blood: +1, kills: +1, standing: +12, body: -10, flags: { called_tian_out: true } },
-      tone: 'blood' },
-    { label: '去叫。但在过道里用最快的速度跟他说一句话。',
-      to: 'n_act2d',
-      effect: { blood: +1, kills: +1, standing: -8, body: -14, rel: { captain: +2 },
-                flags: { warned_him_too_late: true, tried_to_warn: true } },
-      tone: 'blood' },
-    { label: '去叫，但故意走错舱，拖到他有机会跑。',
-      to: 'n_act2d',
-      effect: { standing: -11, rel: { he: -3 }, body: -12,
-                flags: { sabotaged_purge: true, saved_a_life: true } },
-      tone: 'risk' },
-    { label: '把刀还回去。「这个我不去。」',
-      to: 'n_act2d',
-      effect: { standing: -12, rel: { he: -4 }, body: -10, flags: { refused_purge: true } },
-      tone: 'risk' }
+    { label: '黄金波是你的朋友。你早就看出他不对劲。', to: 'a2_before',
+      effect: { rel: { huang: +1 }, flags: { knew_huang_double: true } } },
+    { label: '你什么都没看出来。', to: 'a2_before',
+      effect: { body: -4 } }
   ]
 },
 
-n_act2d: {
-  id: 'n_act2d', act: A, date: '2011 年 7 月 21 日', place: '鲁荣渔 7451 · 甲板',
-  mood: 'blood', ambience: 'sea-tense',
-  onEnter: { body: +7, standing: +3 },
-  night: { pool: 'act2', draws: 2, then: 'a2_split' },
+/* ── 夜航：内斗前夜 ── */
+a2_before: {
+  id: 'a2_before', act: '第二幕', place: '寝室', date: '2011 年 7 月 24 日',
+  mood: 'blood', ambience: 'deep', day: 210,
+  onEnter: { body: +18, standing: +4 },
+  night: { pool: 'act2', draws: 2, then: 'a2_baode' },
   text: [
-    '那一夜之后，船上剩下的人不到二十个。',
-    '甲板被冲过很多遍，但有些地方冲不干净。',
-    '大勇来找过你一次。他脸上有血，没擦干净。他跟你说：',
-    { t: '「我沾血了。我沾血了。」', cls: 'q' },
-    '他说这话的时候在笑。你后来一直记得那个笑。'
+    '刘贵夺去找了船长李承权。',
+    { t: '「我手上有七八条人命，剩下的人想要活命，必须沾点血。」', cls: 'q' },
+    { t: '「二副是包德杀的。」——这是假话。', cls: 'inner' }
   ]
 },
 
-/* ── 核心抉择四：内讧之夜 ─────────────────────────────── */
-
-a2_split: {
-  id: 'a2_split', act: A, day: 216, date: '2011 年 7 月 24 日 · 下午', place: '鲁荣渔 7451 · 底层寝室',
-  mood: 'blood', ambience: 'sea-tense',
+a2_baode: {
+  id: 'a2_baode', act: '第二幕', place: '甲板', date: '2011 年 7 月 24 日 夜',
+  mood: 'blood', ambience: 'sea-tense', day: 210,
+  imgSlot: '甲板上抹在脸上的一道血，和一张仰起来的脸。极端克制，不做血腥特写。',
   text: [
-    '巴雅尔找到你。他把你拉到没人的地方。',
-    { t: '「贺松打算只带两三个黑龙江老乡去日本。剩下的全杀了。」', cls: 'q' },
-    { t: '「你帮他杀了这么多人。你觉得他会不会留你？」', cls: 'q' },
-    '内蒙人都已经集中到底层寝室住了。要是真动手，贺松不一定有把握。',
-    '他在等你说话。',
-    '你手里现在有一个人的命。可能更多。',
-    { t: '你想起来贺松帮你在舱底举过两次盘子。你也想起来他昨天递给你刀的时候，眼睛里什么表情都没有。', cls: 'inner' }
+    '刘贵夺把包德等四人的名字写在纸条上，让同伙传阅。',
+    '他骗包德说船长要杀崔勇，需要借包德的鱼刀。包德把刀交了。',
+    '包德到甲板时，船长已经持刀在那里等。'
   ],
   choices: [
-    { label: '立刻去找贺松，把巴雅尔的话原样说一遍。',
-      to: 'n_act2e',
-      effect: { rel: { he: +4, bayaer: -5 }, standing: +14, body: -8,
-                flags: { betrayed_bayaer: true, he_survives: true } },
-      tone: 'blood' },
-    { label: '答应巴雅尔。跟他一起干。',
-      to: 'n_act2e',
-      effect: { rel: { bayaer: +5, he: -5 }, standing: -10, body: -14,
-                flags: { joined_bayaer: true, he_survives: false } },
-      tone: 'blood' },
-    { label: '「我不掺和。你们自己的事。」然后回舱锁门。',
-      to: 'n_act2e',
-      effect: { standing: -12, body: -6, flags: { sat_out_split: true, he_survives: true } } },
-    { label: '把两个人的话分别说给对方听，让他们自己撞。',
-      to: 'n_act2e',
-      effect: { standing: -16, rel: { he: -2, bayaer: -2 }, body: -10,
-                flags: { played_both_sides: true, he_survives: true } },
-      tone: 'risk' }
+    { label: '站在暗处看。', to: 'a2_horn',
+      effect: { body: -8, flags: { watched_baode: true } } },
+    { label: '上去补一刀，站到刘贵夺那边。', to: 'a2_horn',
+      effect: { blood: +1, standing: +10, body: -12, rel: { liu: +2 },
+                flags: { sided_with_liu: true } }, tone: 'blood' },
+    { label: '往机舱跑。离甲板越远越好。', to: 'a2_horn',
+      effect: { body: -10, standing: -5, flags: { fled_to_engine: true } } }
   ]
 },
 
-n_act2e: {
-  id: 'n_act2e', act: A, date: '2011 年 7 月 25 日 · 凌晨', place: '鲁荣渔 7451 · 甲板',
-  mood: 'blood', ambience: 'sea-tense',
-  onEnter: { body: +7, standing: +3 },
+a2_horn: {
+  id: 'a2_horn', act: '第二幕', place: '寝室', date: '2011 年 7 月 24 日 夜',
+  mood: 'blood', ambience: 'deep', day: 210,
+  text: [
+    '包德受伤后向内蒙同乡大喊：「都出来！」',
+    '没有一个人敢动。',
+    '第一次杀人的崔勇见包德满身是血，兴奋地上前，把血抹在自己脸上。'
+  ],
+  choices: [
+    { label: '听崔勇喊：「我沾血了，我沾血了！」', to: 'a2_noodle',
+      effect: { body: -8, rel: { cui: -1 }, flags: { heard_cui_blood: true } } },
+    { label: '躺回床上，闭眼。', to: 'a2_noodle',
+      effect: { body: -6 } }
+  ]
+},
+
+a2_noodle: {
+  id: 'a2_noodle', act: '第二幕', place: '甲板 / 寝室', date: '2011 年 7 月 25 日 凌晨',
+  mood: 'blood', ambience: 'sea-tense', day: 211,
+  text: [
+    '船上那个高音喇叭突然响了。先是船长的声音：',
+    { t: '「包德，你同伙还有谁，你赶紧说吧，我都知道了。」', cls: 'shout' },
+    '然后变成刘贵夺的：「你以为黄金波是谁的人？」',
+    '「单国喜，出来！」——「啊」，「噗通」。又叫邱荣华，「啊」一声没了。'
+  ],
+  choices: [
+    { label: '躺着，一动不动。', to: 'a2_deep',
+      effect: { body: -10 } },
+    { label: '把耳朵堵上。', to: 'a2_deep',
+      effect: { body: -6, flags: { covered_ears: true } } },
+    { label: '爬起来，去厨房。至少那里有活干。', to: 'a2_deep',
+      effect: { body: -4, standing: +3, flags: { went_to_galley: true } } }
+  ]
+},
+
+/* ── 夜航：尾声 ── */
+a2_deep: {
+  id: 'a2_deep', act: '第二幕', place: '船长室', date: '2011 年 7 月 25 日 凌晨',
+  mood: 'blood', ambience: 'deep', day: 211,
+  onEnter: { body: +18, standing: +4 },
   night: { pool: 'act2', draws: 2, then: 'a3_valve' },
   text: [
-    '那天夜里，喇叭响过。',
-    '有人被叫出去。回来的人不齐。',
-    '天快亮的时候，船上安静了。安静得能听见水从船壳上滑过去的声音。',
-    '你数了数还剩多少人。',
-    { t: '十一个。', cls: 'beat' }
+    '刘成建来叫你。你磨磨蹭蹭上去，以为要弄你。',
+    '刘贵夺坐在床边，看起来很累，又有点轻松的感觉。',
+    { t: '「别害怕，没有事儿。手上没沾血的，回国就完事儿了。」', cls: 'q' },
+    { t: '「你到厨房去煮些面条吧，办完事儿人都饿了，先吃点。」', cls: 'q' }
   ]
 }
 

@@ -268,6 +268,49 @@ const personas = {
       if (score > bestScore) { bestScore = score; best = i; }
     });
     return best;
+  },
+
+  /* e_death 需要沾血三次。前一个人格永远躲着血走，随机局又活不到
+     那么远，所以必须专门有一个人去追血——否则「主犯线」的结局
+     在数据上等于不存在。 */
+  '一心沾血（往主犯那条线走）': (opts, node, eng) => {
+    const isEnding = (i) => {
+      const t = node.choices[i].to;
+      return !!(t && eng.nodes[t] && eng.nodes[t].ending);
+    };
+    let pool = opts.filter((i) => !isEnding(i));
+    if (!pool.length) pool = opts;
+
+    let best = pool[0], bestScore = -Infinity;
+    pool.forEach((i) => {
+      const c = node.choices[i];
+      const score = cost(c, 'blood') * 100 + cost(c, 'standing') * 2 + cost(c, 'body');
+      if (score > bestScore) { bestScore = score; best = i; }
+    });
+    return best;
+  },
+
+  /* e_hero 要求同时满足「救过宋国春」和「沾过血」。它是最难被
+     随机撞到的结局，所以要有一个把救人放在第一位的人格来证明
+     它可达。 */
+  '救人优先（先救人，再活下来）': (opts, node, eng) => {
+    const isEnding = (i) => {
+      const t = node.choices[i].to;
+      return !!(t && eng.nodes[t] && eng.nodes[t].ending);
+    };
+    let pool = opts.filter((i) => !isEnding(i));
+    if (!pool.length) pool = opts;
+
+    let best = pool[0], bestScore = -Infinity;
+    pool.forEach((i) => {
+      const c = node.choices[i];
+      const f = (c.effect && c.effect.flags) || {};
+      let score = cost(c, 'standing') * 2 + cost(c, 'body');
+      if (f.saved_a_life) score += 1000;
+      if (f.opened_valve || f.freed_song) score -= 900;
+      if (score > bestScore) { bestScore = score; best = i; }
+    });
+    return best;
   }
 };
 
@@ -334,4 +377,4 @@ if (problems.length) {
   process.exit(1);
 }
 
-console.log('\n✓ 验证通过 —— 主线连通、九种结局都能走到、没有卡死路径。');
+console.log('\n✓ 验证通过 —— 主线连通、全部结局都能走到、没有卡死路径。');

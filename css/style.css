@@ -365,6 +365,54 @@ body.mood-calm   { --accent: var(--sea); }
   min-height: 1em;
 }
 
+/* ─────────────── 配图 ─────────────── */
+
+#figure { margin: 0 0 1.7rem; }
+
+#figure .scene {
+  margin: 0;
+  position: relative;
+  border: 1px solid #16232c;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #060a0e;
+  animation: para 1.1s ease-out both;
+}
+#figure .scene img {
+  display: block;
+  width: 100%;
+  height: auto;
+  filter: saturate(.8) contrast(1.08) brightness(.9);
+}
+/* 让图和深色页面咬合，别像贴上去的 */
+#figure .scene::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 90px 34px rgba(4, 7, 10, .8);
+  pointer-events: none;
+}
+
+/* 还没配图的位置：?slots=1 时才显示 */
+#figure .img-slot {
+  border: 1px dashed #2b3d48;
+  border-radius: 3px;
+  padding: .85rem 1rem;
+  color: var(--ink-faint);
+  font-size: .84rem;
+  line-height: 1.7;
+  letter-spacing: .04em;
+  background: rgba(10, 18, 24, .4);
+}
+#figure .img-slot::before {
+  content: '配图位';
+  display: block;
+  font-size: .68rem;
+  letter-spacing: .22em;
+  color: var(--sea-dim);
+  margin-bottom: .35rem;
+}
+
 #text p {
   font-size: clamp(1rem, 3.5vw, 1.08rem);
   line-height: 2.05;

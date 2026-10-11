@@ -32,8 +32,8 @@
   };
 
   var REL_NAME = {
-    he: '贺松', bayaer: '巴雅尔', dayong: '大勇',
-    captain: '邵广海', han: '老韩', ge: '老葛'
+    liu: '刘贵夺', ma: '马玉超', zhao: '赵木成',
+    cui: '崔勇', huang: '黄金波', captain: '李承权'
   };
 
   function relLabel(v) {
@@ -51,6 +51,43 @@
 
   var typing = null;   // 当前打字任务的 token
   var pendingNode = null;
+
+  /* 配图位模式：?slots=1 打开。
+     未配图的节点会显示一个虚线框，里面是这张图该画什么。
+     这样后面补图的时候不用翻源码找位置。 */
+  var showSlots = /[?&]slots=1/.test(location.search);
+
+  /* ── 配图 ──────────────────────────────────────────────── */
+
+  function renderFigure(node) {
+    var box = $('#figure');
+    box.innerHTML = '';
+    box.hidden = true;
+
+    if (node.img) {
+      var fig = document.createElement('figure');
+      fig.className = 'scene';
+      var im = document.createElement('img');
+      im.src = node.img;
+      im.alt = node.imgAlt || '';
+      im.loading = 'eager';
+      im.decoding = 'async';
+      // 图没生成出来也不至于开个天窗
+      im.onerror = function () { fig.remove(); box.hidden = true; };
+      fig.appendChild(im);
+      box.appendChild(fig);
+      box.hidden = false;
+      return;
+    }
+
+    if (node.imgSlot && showSlots) {
+      var slot = document.createElement('div');
+      slot.className = 'img-slot';
+      slot.textContent = '［配图位］' + node.imgSlot;
+      box.appendChild(slot);
+      box.hidden = false;
+    }
+  }
 
   /* ── 屏幕切换 ──────────────────────────────────────────── */
 
@@ -285,6 +322,7 @@
     var stage = $('#stage');
     stage.scrollTop = 0;
 
+    renderFigure(node);
     $('#choices').innerHTML = '';
     typeOut($('#text'), node.text || [], function () {
       if (node.night) return renderNightContinue(node);

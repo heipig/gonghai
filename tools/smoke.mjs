@@ -139,10 +139,18 @@ const TEST_SCRIPT = `
       log.push('三个浮层都能开能关');
 
       var steps = 0;
+      // 配图是这一版新加的东西，静态检查看不出 img 有没有真的渲染出来，
+      // 只有真浏览器能证明：#figure 里到底有没有 <img>，图有没有加载成功。
+      var sawFigure = false, brokenImg = 0;
       for (var run = 0; run < 6; run++) {
         for (var i = 0; i < 400; i++) {
           if (q('#screen-ending').classList.contains('is-active')) break;
           q('#stage').click();
+          var figImg = q('#figure img');
+          if (figImg) {
+            sawFigure = true;
+            if (figImg.complete && figImg.naturalWidth === 0) brokenImg++;
+          }
           var btns = Array.prototype.slice.call(q('#choices').querySelectorAll('.choice:not([disabled])'));
           if (!btns.length) {
             fail.push('第 ' + i + ' 步没有可选项 @ ' + window.GH.Engine.state.nodeId);
@@ -162,7 +170,7 @@ const TEST_SCRIPT = `
         q('#btn-log').click();
         var logged = q('#overlay-body').querySelectorAll('.log-list li').length;
         if (logged < 3) fail.push('航海日志没有记录到选择（只有 ' + logged + ' 条）');
-        if (!/贺松/.test(q('#overlay-body').textContent)) fail.push('日志里没有人物关系');
+        if (!/刘贵夺/.test(q('#overlay-body').textContent)) fail.push('日志里没有人物关系');
         q('#overlay-close').click();
 
         q('#btn-ending-fact').click();
@@ -180,6 +188,9 @@ const TEST_SCRIPT = `
       }
 
       var prog = window.GH.Engine.loadProgress();
+      if (!sawFigure) fail.push('六局都没有渲染出任何配图（#figure 一直是空的）');
+      if (brokenImg) fail.push('有 ' + brokenImg + ' 次配图加载失败（img 的 naturalWidth 为 0）');
+      log.push('配图渲染：' + (sawFigure ? '出现过' : '从未出现') + (brokenImg ? '，坏图 ' + brokenImg + ' 次' : '，无坏图'));
       log.push('走完 ' + steps + ' 步；存档里收集了 ' + prog.endings.length + ' 种结局');
     } catch (err) {
       fail.push('未捕获异常: ' + err.message + ' || ' + (err.stack || '').split('\\n')[1]);

@@ -1,444 +1,356 @@
 /* ═══════════════════════════════════════════════════════════════
-   《公海》第三幕 · 漂流 与 审判
-   总阀 → 木筏 → 最后一个人 → 七天 → 靠岸 → 审讯 → 判决
-
-   九种结局。没有一种是"赢"。
+   《公海》第三幕  总阀 → 木筏 → 最后一个人 → 靠岸 → 判决
+   2011 年 7 月 25 日 — 2015 年
+   ─────────────────────────────────────────────────────────────
+   九个结局。没有一种是「赢」——真实里活下来的 11 个人全部获刑。
    ═══════════════════════════════════════════════════════════════ */
 
 (function () {
-  'use strict';
+  var E = window.GH.Engine;
 
-  var A3 = '第三幕 · 漂流';
+  E.register({
 
-  window.GH.Engine.register({
-
-/* ── 总阀 ─────────────────────────────────────────────── */
+/* ═══════════════════ 海底总阀 ═══════════════════ */
 
 a3_valve: {
-  id: 'a3_valve', act: A3, day: 218, date: '2011 年 7 月 25 日 · 凌晨 4 时', place: '鲁荣渔 7451 · 机舱口',
-  mood: 'tense', ambience: 'engine',
+  id: 'a3_valve', act: '第三幕', place: '机舱', date: '2011 年 7 月 25 日 凌晨',
+  mood: 'blood', ambience: 'deep', day: 212, img: 'img/valve.jpg',
   text: [
-    '有人喊：大管轮焦德发找不着了。',
-    '找了一刻钟，没找到人。倒是有人发现海底总阀被拧开了。',
-    '水进得很快。舱底的水已经漫过脚踝。',
-    '只有焦德发知道那个阀在哪儿——他带你看过一次，铜的，拳头大，上面结着一层盐。',
-    { t: '他把这个告诉过你，然后他自己去开了它。', cls: 'inner' },
-    '有人喊：拿泵！把所有泵都开上！',
-    '泵响了一阵。不好使。'
+    '第二天早晨有人喊：找大管轮王延龙，找不着了。',
+    '接着喊：船坏了，海底总阀被人打开了。',
+    '只有王延龙和轮机长温斗知道总阀在哪儿。温斗已经死了。'
   ],
   choices: [
-    { label: '下机舱，跟着一起抽水。',
-      to: 'n_act3pre',
-      effect: { body: -16, standing: +7, flags: { fought_the_water: true } } },
-    { label: '上来找所有能漂的东西，钉一个木筏子。',
-      to: 'n_act3pre',
-      effect: { body: -10, standing: +5, flags: { built_raft: true } } },
-    { label: '去发求救信号。船沉不沉另说，得让人知道这儿有人。',
-      to: 'n_act3pre',
-      effect: { body: -8, standing: +4, rel: { captain: +1 }, flags: { sent_sos: true } } },
-    { label: '站着，看水往上涨。',
-      to: 'n_act3pre',
-      effect: { body: -4, standing: -8, flags: { froze_at_valve: true } } },
-    { label: '下机舱，把总阀关上——你知道它在哪儿。',
-      to: 'n_act3pre',
-      effect: { body: -22, standing: +14, flags: { closed_the_valve: true } },
-      require: { flag: 'knows_valve', why: '你不知道那个阀在哪儿。焦德发没告诉过你。' } },
-    { label: '下机舱。把总阀拧到底。谁都不用回去了。',
-      to: 'e_valve',
-      cost: { smokes: 0 },
+    { label: '下机舱去看。水进得挺快。', to: 'a3_raft',
+      effect: { body: -10, flags: { saw_valve: true } } },
+    { label: '跟着大家拿所有能漂的东西，钉木筏。', to: 'a3_raft',
+      effect: { body: -12, standing: +4 } },
+    { label: '问刘贵夺：船会沉吗。', to: 'a3_raft',
+      effect: { rel: { liu: +1 }, body: -6 } }
+  ]
+},
+
+a3_raft: {
+  id: 'a3_raft', act: '第三幕', place: '船尾', date: '2011 年 7 月 25 日',
+  mood: 'blood', ambience: 'sea-tense', day: 212, img: 'img/raft.jpg',
+  text: [
+    '木筏扎好下了水。大副付义忠上了木筏。',
+    '他一边笑一边冲你招手，说了好几遍：',
+    { t: '「别吵吵，你上来。」', cls: 'q' },
+    '筏上还有宋国春、宫学军、丁玉民，都穿好了救生衣。'
+  ],
+  choices: [
+    { label: '上木筏。跟他们走。', to: 'e_raft',
+      effect: { body: -6, flags: { boarded_raft: true } },
+      tone: 'risk' },
+    { label: '「没弄完，等会儿。」——你留在船上。', to: 'a3_iron',
+      effect: { body: -4 } },
+    { label: '喊：别走！船上还有人！', to: 'a3_iron',
+      effect: { standing: -6, rel: { liu: -1 }, body: -5,
+                flags: { shouted_after_raft: true } } }
+  ]
+},
+
+a3_iron: {
+  id: 'a3_iron', act: '第三幕', place: '船尾', date: '2011 年 7 月 25 日',
+  mood: 'blood', ambience: 'sea-tense', day: 212,
+  imgSlot: '一百多个钓鱿铁坠堆在甲板上，每颗拳头大，麻绳穿在一起。极冷的光。',
+  text: [
+    '不知是谁喊了一声：木筏怎么飘走了。',
+    '大副捡起绳子，扔回了海里：「救生筏上藏了刀，他们还想杀人！我们不回去！」',
+    '船不沉——货仓没东西，只是机舱进水。只能等救援。',
+    '船长突然喊：「猫下、猫下。」木筏被海流冲回来了。'
+  ],
+  choices: [
+    { label: '抓起铁坠，往海里扔。', to: 'a3_song',
+      effect: { blood: +1, standing: +10, body: -14,
+                flags: { threw_iron: true } },
+      tone: 'blood' },
+    { label: '下舱底把铁坠搬上来，但不下手。', to: 'a3_song',
+      effect: { body: -12, standing: +4, flags: { fetched_iron: true } } },
+    { label: '躲到舱里去。', to: 'a3_song',
+      effect: { body: -4, standing: -6, flags: { hid_from_iron: true } } },
+    { label: '把缆绳捡起来，往木筏上再扔一次。', to: 'a3_song',
+      effect: { body: -8, standing: -8, rel: { liu: -2 },
+                flags: { tried_tow_raft: true } }, tone: 'risk' }
+  ]
+},
+
+a3_song: {
+  id: 'a3_song', act: '第三幕', place: '船尾', date: '2011 年 7 月 25 日',
+  mood: 'blood', ambience: 'sea-tense', day: 212,
+  text: [
+    '船长一喊「砸，往死里砸」，铁坠就往下扔。噗通噗通下去三个人。',
+    '只剩丁玉民在上面。姜晓龙拿鱼叉跳上木筏。',
+    '宋国春在海里离得近，一个劲儿求情：',
+    { t: '「刘哥，你放过我吧，咱俩也没太大的仇，回去我也不能瞎说啊。」', cls: 'q' }
+  ],
+  choices: [
+    { label: '把宋国春拉上来。', to: 'a3_verdict',
+      effect: { body: -10, standing: -6, rel: { liu: -1 },
+                flags: { saved_a_life: true } }, tone: 'risk' },
+    { label: '站着，看着刘贵夺。等他发话。', to: 'a3_verdict',
+      effect: { body: -8, flags: { waited_for_liu: true } } },
+    { label: '转过头去。', to: 'a3_verdict',
+      effect: { body: -6, standing: -2 } }
+  ]
+},
+
+a3_verdict: {
+  id: 'a3_verdict', act: '第三幕', place: '船尾', date: '2011 年 7 月 25 日',
+  mood: 'blood', ambience: 'deep', day: 212,
+  route: [
+    { require: { bloodMin: 3 }, to: 'e_death' },
+    { require: { flag: 'saved_a_life' }, to: 'a3_iron2' },
+    { to: 'a3_iron2' }
+  ],
+  text: [ '船长走到刘贵夺跟前。' ]
+},
+
+/* 最后一道坎：船上还剩两个没沾血的人，其中一个就是你。 */
+a3_iron2: {
+  id: 'a3_iron2', act: '第三幕', place: '船尾', date: '2011 年 7 月 25 日',
+  mood: 'blood', ambience: 'deep', day: 212,
+  text: [
+    '宋国春被拉上来了，脑袋在流血。你找了张纸巾给他擦。',
+    '船长走到刘贵夺跟前，说：船上还有两个没沾血的。',
+    { t: '「救援要来了，他俩还没沾血。」', cls: 'shout' }
+  ],
+  choices: [
+    { label: '接过鱼刀。', to: 'a3_wait',
+      effect: { blood: +1, standing: +8, body: -10, flags: { took_knife: true } },
+      tone: 'blood' },
+    { label: '「别捅了。绑起来扔下去得了。」', to: 'a3_wait',
+      effect: { blood: +1, standing: +12, rel: { liu: +2 }, body: -14, kills: 0,
+                flags: { gave_the_order: true } }, tone: 'blood' },
+    { label: '「我不干。」', to: 'e_sunk',
+      effect: { standing: -20, flags: { refused_final: true } }, tone: 'risk' },
+    { label: '把救生衣脱给他，让他从船尾下水。往东游，别回头。', to: 'e_hero_escape',
+      effect: { body: -12, rel: { liu: -3 }, flags: { freed_song: true } },
+      require: { flag: 'saved_a_life', why: '你已经错过那个时机了。' },
+      secret: true },
+    { label: '下机舱，把总阀拧到底。谁都不用回去了。', to: 'e_valve',
       effect: { flags: { opened_valve: true } },
-      require: { flag: 'knows_valve', why: '你不知道那个阀在哪儿。' },
+      require: { flag: 'saw_valve', why: '你根本不知道那个阀在哪儿。' },
       secret: true }
   ]
 },
 
-n_act3pre: {
-  id: 'n_act3pre', act: A3, date: '2011 年 7 月 25 日 · 天亮', place: '鲁荣渔 7451 · 甲板',
-  mood: 'tense', ambience: 'sea',
-  onEnter: { body: +7, standing: +3 },
-  night: { pool: 'act3', draws: 1, then: 'a3_raft' },
+/* ═══════════════════ 等 ═══════════════════ */
+
+a3_wait: {
+  id: 'a3_wait', act: '第三幕', place: '海上', date: '2011 年 8 月',
+  mood: 'blood', ambience: 'sea', day: 218,
+  onEnter: { body: +18, standing: +4 },
+  night: { pool: 'act3', draws: 3, then: 'a3_back' },
   text: [
-    '船没有沉。',
-    '货舱是空的，水舱也没多少水，只是机舱进了水。沉不了，也动不了。',
-    '只能等救援。',
-    '求救的时候说船上有十五个人。现在只剩十一个。'
+    '台风梅花正席卷西太平洋。',
+    '渔政的救援船赶来时，已经是七天之后。',
+    '这七天里，船长李承权把你拉到一边，塞给你一张纸条。上面是编好的话。'
   ]
 },
 
-/* ── 核心抉择五：木筏 ─────────────────────────────────── */
-
-a3_raft: {
-  id: 'a3_raft', act: A3, day: 219, date: '2011 年 7 月 25 日', place: '鲁荣渔 7451 · 船头至船尾',
-  mood: 'blood', ambience: 'sea-tense',
+a3_back: {
+  id: 'a3_back', act: '第三幕', place: '石岛码头', date: '2011 年 8 月 12 日',
+  mood: 'blood', ambience: 'quiet', day: 229,
+  imgSlot: '大雨里的石岛码头，一辆大巴、一辆救护车、二三十个人在岸上等着。武警的雨衣。',
   text: [
-    '木头筏子扎好了，放下水。',
-    '大副孙立成上了木筏。他一边笑一边冲你招手。',
-    { t: '「别吵吵，你上来。你上来。」', cls: 'q' },
-    '他说了好几遍。你说：没弄完，等会儿。',
-    '木筏上除了他，还有三个人：宫学军、丁玉民、宋有田。都穿好了救生衣。',
-    '然后不知道谁喊了一声：哎，木筏怎么飘走了？',
-    '你回头一看，缆绳断了。木筏已经出去十多米。你赶紧抓绳子扔过去，正好扔到筏上。',
-    '大副捡起绳子，扔回了海里。',
-    { t: '「救生筏上藏了刀，他们还想杀人！我们不回去！」', cls: 'shout' },
-    '贺松在船头大骂，疯了似的。木筏飘远了，慢慢只剩拳头那么大。',
-    { t: '——本来应该就这样结束了。', cls: 'beat' },
-    '但船不沉了。船往前漂，追上了木筏。',
-    '木筏上的四个人正拿菜刀割伞锚的缆绳，想让船失去速度、离他们远一点。',
-    '缆绳割不断。木筏一点不差，正好撞上了船头。',
-    '船长喊了一句。甲板上有人开始搬东西——上百个钓鱿用的铁坠，一个接一个码在船头。'
+    '那天下着大雨。岸上停着一辆大巴车，还有救护车。',
+    '二三十个人在那。武警把你们手反绑着押下去。',
+    '大巴开出去没多远，警察不知从哪呼呼全冒了出来。'
   ],
   choices: [
-    { label: '搬铁坠。往木筏上扔。',
-      to: 'a3_last',
-      effect: { blood: +1, kills: +1, standing: +10, body: -8, flags: { threw_weights: true } },
-      tone: 'blood' },
-    { label: '站着不动。手里什么都不拿。',
-      to: 'a3_last',
-      effect: { standing: -6, body: -5, flags: { refused_weights: true } },
-      tone: 'risk' },
-    { label: '走到船尾去。看不见，就等于没发生。',
-      to: 'a3_last',
-      effect: { standing: -5, body: -2, flags: { walked_away_raft: true } } },
-    { label: '喊：别扔了！让他们走！',
-      to: 'a3_last',
-      effect: { standing: -12, rel: { he: -2 }, body: -8, flags: { shouted_stop: true } },
-      tone: 'blood' },
-    { label: '踩上木筏。跟他们走。',
-      to: 'e_raft',
-      effect: { body: -6, flags: { boarded_raft: true } },
-      tone: 'risk' }
+    { label: '一个人一辆警车。带到派出所。', to: 'a3_trial',
+      effect: { body: -6 } }
   ]
 },
-
-/* ── 最后一个人 ───────────────────────────────────────── */
-
-a3_last: {
-  id: 'a3_last', act: A3, day: 219, date: '2011 年 7 月 25 日 · 深夜', place: '鲁荣渔 7451 · 船尾',
-  mood: 'blood', ambience: 'sea',
-  text: [
-    '三个人落水了。他们一边骂一边求情，慢慢游远，搂在一起。',
-    '国产的救生衣不行，一浸水，四五个小时就往下沉。他们身上还带着血。',
-    '剩下宋有田，离船近，一个劲儿求情。',
-    { t: '「刘哥——不，松哥，你放过我吧。咱俩也没太大的仇，回去我也不能瞎说啊。」', cls: 'q' },
-    '贺松没发话。没人敢救。',
-    '过了一会儿他说：薅上来吧。你和周满把他拉了上来。他脑袋在流血，你找了纸巾给他擦。',
-    '这时候船长走到贺松跟前，说了一句：',
-    { t: '「船上还有人没沾血。救援要来了，他俩怎么办？」', cls: 'q' },
-    '甲板上安静了。你知道这句话是冲谁来的。',
-    { t: '你自己的手，是干净的还是脏的——只有你自己知道。', cls: 'inner' }
-  ],
-  choices: [
-    { label: '拿起鱼刀。',
-      to: 'n_act3a',
-      effect: { blood: +1, kills: +1, standing: +12, body: -12, flags: { killed_last: true } },
-      tone: 'blood' },
-    { label: '「我绑。刀我不拿。」',
-      to: 'n_act3a',
-      effect: { blood: +1, kills: 0, standing: +5, body: -14, flags: { bound_him: true } },
-      tone: 'blood' },
-    { label: '「我不干。你们要怎么办就怎么办。」',
-      to: 'n_act3a',
-      effect: { standing: -12, rel: { he: -4 }, body: -14, flags: { refused_last: true } },
-      tone: 'risk' },
-    { label: '把宋有田的救生衣穿上，把他推回海里之前先放开他的手。',
-      to: 'n_act3a',
-      effect: { blood: +1, kills: 0, standing: -6, body: -16,
-                flags: { let_him_go: true, tried_to_save: true } },
-      tone: 'blood' }
-  ]
-},
-
-n_act3a: {
-  id: 'n_act3a', act: A3, date: '2011 年 7 月 26 日 起', place: '鲁荣渔 7451 · 漂流',
-  mood: 'tense', ambience: 'sea',
-  onEnter: { body: +7, standing: +3 },
-  night: { pool: 'act3', draws: 3, then: 'a3_drift' },
-  text: [
-    '剩下十一个人。',
-    '他们各自走开了。',
-    '救援信号已经发出去了。接下来能做的只有等。',
-    '那几天，海面上什么都没有。'
-  ]
-},
-
-/* ── 七天 ─────────────────────────────────────────────── */
-
-a3_drift: {
-  id: 'a3_drift', act: A3, day: 224, date: '2011 年 8 月上旬', place: '西北太平洋 · 漂流第七天',
-  mood: 'tense', ambience: 'sea',
-  text: [
-    '台风梅花从西太平洋卷过来。',
-    '超强台风。船已经不能动了，只能由着浪推。浪从船头打上来，人得抓着栏杆才站得住。',
-    '七天里你们做过的事：把甲板上所有能漂的东西绑了一遍；把剩下的吃的分成十一份；轮流到船头看有没有船。',
-    '有人开始对着海说话。有人开始在墙上刻字。',
-    '你把每个人的名字在心里过了一遍。十一个。有几个人你到现在还叫不上名字。',
-    { t: '第七天下午，你听见了一个声音。', cls: 'beat' },
-    '不是浪。是机器。是柴油机的声音。',
-    '你爬到船头。海平线上有一个点，越来越大。',
-    '中国渔政的船。'
-  ],
-  choices: [
-    { label: '挥手。喊。',
-      to: 'a3_ashore',
-      effect: { body: +8, standing: +3, flags: { waved_rescue: true } } },
-    { label: '看着它靠近。一句话都说不出来。',
-      to: 'a3_ashore',
-      effect: { body: +4, flags: { silent_at_rescue: true } } },
-    { label: '回头看甲板上的其他人，记住他们现在的样子。',
-      to: 'a3_ashore',
-      effect: { body: +2, standing: +4, flags: { looked_at_crew: true } } }
-  ]
-},
-
-/* ── 靠岸 ─────────────────────────────────────────────── */
-
-a3_ashore: {
-  id: 'a3_ashore', act: A3, day: 231, date: '2011 年 8 月 12 日 · 大雨', place: '石岛 · 电业码头',
-  mood: 'tense', ambience: 'sea',
-  text: [
-    '渔政的拖船把你们拖回石岛码头。',
-    '靠岸前，十一个人已经定好了攻守同盟：</em>因内讧被杀的那一伙人是坏人；第一个死的老周参与了劫船；剩下的人在船快沉的时候乘救生筏离开了。<em>',
-    '这是编好的谎。每个人背了一遍。',
-    '那天下着大雨。岸上停着一辆大巴车，还有救护车。二三十个人在那儿等着。',
-    '武警把你们的手反绑了，一个一个押下去。你是第三个还是第四个下去的。',
-    '你们先上了大巴，开出去没多远，警察不知道从哪儿全冒了出来。他们之前藏着，不敢让你们看见，等所有人都上了岸才现身。',
-    '然后一人一辆警车，带到派出所。',
-    '你坐在警车里，看着窗外的雨。你想起来你在石岛码头第一次仰头看这条船的那天。',
-    { t: '那个时候你二十四岁，手里什么都没有，但是你觉得自己可以去挣点什么。', cls: 'inner' }
-  ],
-  choices: [
-    { label: '在心里把攻守同盟再背一遍。',
-      to: 'a3_trial',
-      effect: { standing: +4, body: -3, flags: { rehearsed_cover: true } } },
-    { label: '什么都不背。',
-      to: 'a3_trial',
-      effect: { body: +2, flags: { dropped_cover: true } } }
-  ]
-},
-
-/* ── 审讯 ─────────────────────────────────────────────── */
 
 a3_trial: {
-  id: 'a3_trial', act: A3, day: 232, date: '2011 年 8 月 13 日', place: '石岛 · 刑警队',
-  mood: 'tense', ambience: 'quiet',
+  id: 'a3_trial', act: '第三幕', place: '威海市中级人民法院', date: '2012 年 11 月',
+  mood: 'blood', ambience: 'quiet', day: 300, img: 'img/court.jpg',
   text: [
-    '第一遍口供，十一个人的口径一致：没有杀人。',
-    '审你的人听完了，没说话。他把笔录合上，又打开。',
-    { t: '「你说的这个，要是我跟你说，你自己会不会信？」', cls: 'q' },
-    '他的领导进来了，看了看你。',
-    { t: '「还没说实话呢？」', cls: 'q' },
-    '你没吱声。',
-    { t: '「人家都说了。第一个死的是老周，对不对？你是最轻的，还拿呢？」', cls: 'q' },
-    '他点了你一句。',
-    { t: '——', cls: 'beat' },
-    '然后他把一样东西推到你面前。',
-    '不是你的东西。是**别人整理的**你。',
-    '一个本子。上面一条一条，记着你在这条船上做过的每一个选择。哪天，站在哪儿，说了什么，动了手没有。',
-    '他一页一页念。念得很慢。',
-    { t: '{{log}}', cls: 'log' },
-    '念完了。他把本子推到一边，抬头看你。',
-    { t: '「这些，都是你自己做的。现在你说吧。」', cls: 'q' }
+    '审讯的人说：你说的这个，要是我跟你说，你自己会不会信？',
+    '领导来了，说：人家都说了，第一个死的是夏琦勇，对不对？',
+    '刘贵夺坐在前面。他的背后，另外十个被告坐成一排。'
   ],
   choices: [
-    { label: '「我全都说。」',
-      to: 'e_confess',
-      effect: { body: -6, flags: { confessed: true } } },
-    { label: '按商量好的说：那一伙人杀了人，坐着木筏跑了。',
-      to: 'a3_verdict',
-      effect: { standing: -4, body: -8, flags: { stuck_to_cover: true } } },
-    { label: '不说话。',
-      to: 'a3_verdict',
-      effect: { standing: -8, body: -10, flags: { stayed_silent: true } } },
-    { label: '「我先问你一件事。老周家里，后来怎么样了？」',
-      to: 'a3_verdict',
-      effect: { body: -6, standing: +6, flags: { asked_about_family: true } } }
+    { label: '把口供撕了，说了。', to: 'a3_confess',
+      effect: { flags: { confessed: true }, body: -8 } },
+    { label: '按纸条上说。', to: 'a3_confess',
+      effect: { flags: { stuck_to_story: true }, standing: -4 } }
   ]
 },
 
-/* 判决：按你手上到底有几条命分发。
-   这是整局游戏的结账台——前面每一个 blood: +1 都会在这里被兑现。 */
-a3_verdict: {
-  id: 'a3_verdict', act: A3, date: '2013 年 7 月', place: '威海 · 中级人民法院',
-  route: [
-    { require: { bloodMin: 3 }, to: 'e_heavy' },
-    { require: { bloodMin: 1 }, to: 'e_mid' },
-    { require: { flag: 'saved_a_life' }, to: 'e_hero' },
-    { to: 'e_clean' }
+a3_confess: {
+  id: 'a3_confess', act: '第三幕', place: '法庭', date: '2012 年 11 月',
+  mood: 'blood', ambience: 'quiet', day: 301,
+  text: [
+    '法官问刘贵夺，沾血是什么意思？',
+    { t: '「你说是什么意思，这不是明摆着的吗？」', cls: 'q' },
+    '法官要求他说明。他沉默了一下，抬起头。',
+    { t: '「杀人的意思。」', cls: 'shout' },
+    { t: '{{log}}', cls: 'log' }
   ],
-  text: ['']
+  choices: [
+    { label: '这是你走过的路。', to: 'a3_verdict2',
+      effect: {} }
+  ]
 },
 
-/* ═══════════════════════════════════════════════════════════
-   结 局
-   ═══════════════════════════════════════════════════════════ */
+a3_verdict2: {
+  id: 'a3_verdict2', act: '第三幕', place: '法庭', date: '2012 年 11 月 19 日',
+  mood: 'blood', ambience: 'quiet', day: 302,
+  route: [
+    { require: { bloodMin: 3 }, to: 'e_death' },
+    { require: { flag: 'saved_a_life' }, to: 'e_hero' },
+    { require: { bloodMin: 1 }, to: 'e_four' },
+    { to: 'e_four' }
+  ],
+  text: [ '宣判。' ]
+},
+
+/* ═══════════════════ 结局 ═══════════════════ */
 
 e_body: {
-  id: 'e_body', act: '结局', mood: 'blood', ambience: 'deep',
+  id: 'e_body', act: '结局', mood: 'calm',
   ending: {
-    key: 'body',
-    kind: '结局 · 力竭',
-    title: '你没能撑到看见那条船',
+    key: 'body', kind: '你没能撑到看见那条船', title: '力竭',
     body: [
-      '你的身体先撑不住了。',
-      '在这条船上，体力不是慢慢没的，是一下子没的——卸货、缺觉、伤口、还有不敢睡。',
-      '你倒在甲板上。有人把你拖进舱里。有人说了一句什么，你没听清。',
-      '后来那七天里，没有人再提起你。',
-      { t: '海面上什么都没有。', cls: 'beat' }
+      '你倒在钓鱿甲板上。灯还亮着，两千瓦，正对着你的脸。',
+      '没有人停下手里的线。',
+      { t: '海上常有的事。回去就说刮海里了，给鱼带下去了。', cls: 'q' },
+      '——这句话是包宝成说的。后来他自己也被逼跳了海。'
     ]
   }
 },
 
 e_standing: {
-  id: 'e_standing', act: '结局', mood: 'blood', ambience: 'deep',
+  id: 'e_standing', act: '结局', mood: 'blood',
   ending: {
-    key: 'standing',
-    kind: '结局 · 出局',
-    title: '这条船上不再需要你',
+    key: 'standing', kind: '这条船上不再需要你', title: '叫名字',
     body: [
-      '在这条船上，不被需要是一种很快的病。',
-      '你没有站到任何一边，也没有人替你说话。到某一天晚上，门被推开，有人叫你的名字。',
-      '你出去的时候，甲板上站着的人比你想象的多。他们都没有看你。',
-      '只有一个人看了你一眼，然后把头转开了。',
-      { t: '在公海上，一个人消失掉，不需要理由，只需要没有人问。', cls: 'beat' }
+      '那天夜里，有人在门外叫你的名字。',
+      '你出去了。',
+      '甲板上没有一点血。他们连夜洗了。'
     ]
   }
 },
 
-e_raft: {
-  id: 'e_raft', act: '结局', mood: 'calm', ambience: 'deep',
+e_ma: {
+  id: 'e_ma', act: '结局', mood: 'calm', imgSlot: '空荡的上铺，被掀开的被子。没有人物。',
   ending: {
-    key: 'raft',
-    kind: '结局 · 木筏',
-    title: '你上了那块木筏',
+    key: 'ma', kind: '你和马玉超一样', title: '不敢一个人住',
     body: [
-      '你把脚踩上木头筏子的时候，觉得它比你想象的小。',
-      '缆绳断了。船在身后越来越远。你听见有人在骂，骂声很快被风盖过去了。',
-      '木筏上有四个人，加上你五个。救生衣是国产的。',
-      '第一天你们还说话。第二天开始喝雨水。第三天没有人说话了。',
-      { t: '洋流把你们往南带。没有人知道你们在哪儿。', cls: 'beat' },
-      '你最后记得的是太阳。它落下去的时候，整个海面是红的，很好看。'
+      '你趁天黑走到船舷边。没有救生衣，也没有能漂的东西——全被收走了。',
+      '马玉超睡你下铺。头天晚上他说的是：',
+      { t: '「我不敢一个人住。」', cls: 'q' },
+      '天亮以后他就不见了。东西都没少。',
+      '刘贵夺在船员面前说：他咋跳海了？没打算动他，他是我的人，是我的卧底。',
+      '现在轮到你了。'
     ]
   }
 },
 
 e_valve: {
-  id: 'e_valve', act: '结局', mood: 'blood', ambience: 'deep',
+  id: 'e_valve', act: '结局', mood: 'blood', img: 'img/valve.jpg',
   ending: {
-    key: 'valve',
-    kind: '结局 · 同归于尽',
-    title: '你把那个阀拧到了底',
+    key: 'valve', kind: '你把那个阀拧到了底', title: '海底总阀',
     body: [
-      '铜的阀，上面结着一层盐。你两只手一起拧。',
-      '水的声音从脚底下升起来，不是哗哗的，是闷的，像有什么东西在船底呼吸。',
-      '你一直拧到底，然后坐在机舱的台阶上等着。',
-      '上面有人在跑，有人在喊。水漫过你的脚，漫过膝盖，漫过腰。',
-      { t: '你想着：这样也好。谁都不用回去了。', cls: 'beat' },
-      '后来打捞的人说，那条船沉得很快。没有人上来。'
+      '海底总阀只有大管轮王延龙和轮机长温斗知道在哪儿。温斗死了。',
+      '王延龙失踪之前，先把它拧开了。',
+      '船不沉——货仓里没东西，水仓也没多少水。只是机舱进水，走不动了。',
+      '于是这条船不得不发出求救信号。不得不回中国。',
+      '你做了同样的事。你没能救任何人，你只是让这件事没有办法被忘掉。'
     ]
   }
 },
 
-e_confess: {
-  id: 'e_confess', act: '结局', mood: 'tense', ambience: 'quiet',
+e_raft: {
+  id: 'e_raft', act: '结局', mood: 'blood', img: 'img/raft.jpg',
   ending: {
-    key: 'confess',
-    kind: '结局 · 坦白',
-    title: '你把整条船都说了出来',
+    key: 'raft', kind: '你上了那块木筏', title: '别吵吵，你上来',
     body: [
-      '你说了。从头到尾。',
-      '你说老周是怎么死的，说谁递的刀，说机舱四人间那天晚上有几个人进去，说木筏上那四个人是怎么落的水。',
-      '你说的时候，审你的人在记。记到一半他停下来，问了你一句：',
-      { t: '「这些你怎么记得这么清楚？」', cls: 'q' },
-      '你说你也不知道。你就是记得。',
-      { t: '——', cls: 'beat' },
-      '因为你的口供，另外十个人的口径全塌了。全案的事实是在你这里接上的。',
-      '你没有因此少判。伙同杀人、劫持船只，事实清楚，证据确凿。',
-      '但你是十一个人里，唯一一个在法庭上从头听到尾的人。',
-      { t: '其他人的家属来旁听的时候，看你的眼神和看别人不一样。', cls: 'inner' },
-      '你说不清那是恨还是别的什么。'
+      '大副付义忠一边笑一边冲你招手，说了好几遍：别吵吵，你上来。',
+      '木筏顺流漂出去十几米，缆绳断了。',
+      '船长喊「猫下」。海流把你们又冲回了船边。',
+      '铁坠是钓鱿鱼用的，一颗拳头大，一百多个。',
+      '你在水里，三个人搂在一起。国产的救生衣一浸水，四五个小时就下沉。'
     ]
   }
 },
 
-e_clean: {
-  id: 'e_clean', act: '结局', mood: 'calm', ambience: 'quiet',
+e_sunk: {
+  id: 'e_sunk', act: '结局', mood: 'blood',
   ending: {
-    key: 'clean',
-    kind: '结局 · 手上干净',
-    title: '你的手上没有血。你还是要坐牢。',
+    key: 'sunk', kind: '你被绑上铁坠', title: '沉',
     body: [
-      '十一个人全都因有罪获刑。',
-      '你没有杀过人。但你在船上待了八个多月，你知道每一件事，你没有阻止任何一件，你在很多个晚上选择走到船尾去。',
-      '法律不管你在船尾站了多久。',
-      { t: '「伙同」两个字，够装下很多东西。', cls: 'beat' },
-      '宣判那天你戴着手铐脚镣走进法庭，看见你妈坐在旁听席上，眼泪止不住地流。',
-      '你也忍不住。你想回头看看她，想跟她说一句话。法警拦了你两次。',
-      '你听到判决的时候，心里竟然松了一口气——比你想的轻。',
-      { t: '你当庭表示不上诉。', cls: 'inner' },
-      '你在心里算了一笔账：你在那条船上没有沾血，你为此付出的代价，是从你二十四岁到三十岁之间的那几年。',
-      '你觉得这个是划算的。',
-      '你只是不敢确定，如果再来一次，你还会不会做出一样的选择。'
+      { t: '「别捅了。你俩绑起来，扔下去得了。」', cls: 'q' },
+      '有人脱了你的救生衣。手绑上了，腿绑没绑，你自己不记得了。',
+      '有人用鱼线串了五六个铁坠，拴在你身上。',
+      '你站的地方离船尾六七米。有人用了差不多五分钟，才把你推到没有栏杆的地方。',
+      '他一直回头看刘贵夺，想着再给你一次机会。'
     ]
   }
 },
 
-e_mid: {
-  id: 'e_mid', act: '结局', mood: 'blood', ambience: 'quiet',
+e_hero_escape: {
+  id: 'e_hero_escape', act: '结局', mood: 'calm',
   ending: {
-    key: 'mid',
-    kind: '结局 · 沾过血',
-    title: '你沾了血，活了下来，然后被算清了',
+    key: 'hero_escape', kind: '你把救生衣还给了他', title: '回去我也不能瞎说',
     body: [
-      '第一刀很难。第二刀不难。',
-      '活到岸上的十一个人，没有一个是干净的——**包括那四个坐在木筏上跑掉的人，九个死在水里的人，二十条再也回不来的人命**。',
-      { t: '这笔账在法庭上是一条一条算的。哪一晚、哪个人、你动了哪一下。', cls: 'beat' },
-      '你本想只说一半。但船上的事经不起对着说——十一个人被分开审，谁的话都拼得上别人的。',
-      '判决下来的时候，你听见了自己名字后面的那几个字。',
-      { t: '你被押出去的时候，旁听席上有人在哭。你分不清那是你家里的人还是别人家里的人。', cls: 'inner' },
-      '你活下来了。这就是你当时想要的全部。',
-      '现在你知道，"活下来"和"活着回去"不是同一件事。'
-    ]
-  }
-},
-
-e_heavy: {
-  id: 'e_heavy', act: '结局', mood: 'blood', ambience: 'deep',
-  ending: {
-    key: 'heavy',
-    kind: '结局 · 主犯',
-    title: '你不是被卷进去的。你是其中一个人。',
-    body: [
-      '你最后一次数自己手上的人，是在漂流第七天。数不清了。',
-      { t: '因为有些人是"你在场"，有些人是"你按住他"，有些人是"你搬了铁坠"。这三种的界限，只有你自己心里有。', cls: 'beat' },
-      '在法庭上，这个界限由证据来定。而船上有十一个人，每个人的界限都和别人的咬合在一起。',
-      '你的名字出现在了很多个晚上。',
-      '审查持续了将近两年。你在看守所里过了两个冬天。',
-      '宣判的那天，你被法警架着走。你听见你妈的哭声，很远。',
-      '你想着上船之前的那个夏天。镇上那个烧烤摊，一直在下雨。',
-      { t: '你只想挣点钱，回来做个小生意。', cls: 'inner' },
-      '这句话你后来跟很多人说过。没有一个人因此少判你一天。'
+      '你把救生衣穿回宋国春身上，把他推下了水。',
+      '他回头看了你一眼，什么都没说。',
+      '刘贵夺没有说话。那一眼之后，你在这条船上就只剩下一件事可做——等。',
+      '七天后台风过去，渔政船到了。',
+      '你活到了岸上。你手上没有血。你救过一个人。',
+      '——这就是全部了。'
     ]
   }
 },
 
 e_hero: {
-  id: 'e_hero', act: '结局', mood: 'calm', ambience: 'quiet',
+  id: 'e_hero', act: '结局', mood: 'calm',
   ending: {
-    key: 'hero',
-    kind: '结局 · 有一个人记得你',
-    title: '你手上没有血。你还救过一个人。',
+    key: 'hero', kind: '你救过一个人', title: '有一个人记得你',
     body: [
-      '这是这条船上最难走的一条路，你走完了。',
-      '你在一间机舱门口走错了路，拖了时间；你把一个人的名字从名单上抹掉了——不是用笔，是用你的犹豫。',
-      '你没有沾血。你活到了岸上。',
-      { t: '——', cls: 'beat' },
-      '但你依然是十一个被告之一。',
-      { t: '「伙同」两个字，够装下很多东西。', cls: 'beat' },
-      '你在法庭上见到了那个人。他也在被告席上，隔着两个人。',
-      '他没有看你。整个庭审他没有看你一眼。',
-      '很多年以后你才明白：他不能看你。看一眼，他就得承认那天晚上是谁救了他，而那样说，对谁都没有好处。',
-      { t: '你救了一条命，但你们两个人，一辈子都不能提这件事。', cls: 'inner' },
-      '这就是这条船上唯一一种"好结局"的样子。'
+      '宋国春的脑袋在流血，你找了张纸巾给他擦。',
+      '然后你接过了刀。你沾了血。你活到了岸上。',
+      '“鲁荣渔 2682 号”回来的 11 个人，全部获刑。',
+      '有一个人记得你在船尾递过去的那张纸巾。',
+      '在这个故事里，这就是最好的结局了。'
+    ]
+  }
+},
+
+e_death: {
+  id: 'e_death', act: '结局', mood: 'blood', img: 'img/court.jpg',
+  ending: {
+    key: 'death', kind: '你和黄金波一样', title: '死刑',
+    body: [
+      '黄金波 19 岁。牙克石人，在北京有家有车有房。',
+      '他说自己从小有个海员梦。上船以后学会了抽烟，刘贵夺把自己的烟给他，也没提过钱的事。',
+      '他是最先坦白的一个，想申报自首情节。没有通过。',
+      '刘贵夺一直死硬着，否认了所有的指控。',
+      '他父母哭着对记者说：要是船上的人都能像鱼一样游泳就好了。',
+      '在看守所里，刘贵夺鼓动同监的死刑犯跟他一起跑。第二天就被举报了。',
+      '从那以后，他被四肢固定在床板上，四年多。'
+    ]
+  }
+},
+
+e_four: {
+  id: 'e_four', act: '结局', mood: 'calm',
+  ending: {
+    key: 'four', kind: '你活着回来了', title: '回家给妈做饭',
+    body: [
+      '宣判的时候你听到「有期徒刑四年」，心里乐坏了。当庭表示不上诉。',
+      '开庭那天，你戴着手铐脚镣走进法庭，看见母亲坐在旁听席上，泪流不止。',
+      '你出狱那年 29 岁。女朋友去了上海，断了联系。',
+      { t: '什么都没有了，得从头开始。', cls: 'q' },
+      '走之前你隔着铁栏杆喊黄金波：我要出去了，缺什么东西？我给你邮点儿。',
+      { t: '「不用了，家里都给寄了。你自己出去别再那啥了，小心点。」', cls: 'q' },
+      '现在你每天下午五点回家给妈做饭。她在一个工厂做工。',
+      '她不允许你出远门。你答应过她，今后再也不会离开家乡。'
     ]
   }
 }

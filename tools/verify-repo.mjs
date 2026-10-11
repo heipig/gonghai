@@ -208,6 +208,14 @@ MUST_BE_ABSENT.forEach((name) => {
 
 console.log('\n三、隐私扫描（扫字节流，不只扫源码）\n');
 
+/* 二进制文件只跑 ASCII 规则。
+   "扫字节流"这条规矩本来就是为了防有人把路径或 token 藏进
+   二进制里，所以 ASCII 规则照跑不误；但 UTF8_RULES 是中文占位符
+   规则，拿它去匹配 JPEG 的乱码字节只会产生误报——而一条会误报的
+   检查，下场是被人忽略。 */
+const BINARY_EXT = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif', '.ico', '.woff', '.woff2', '.zip', '.pdf']);
+const isBinary = (f) => BINARY_EXT.has(path.extname(f).toLowerCase());
+
 let hits = 0;
 files.forEach((f) => {
   const buf = fs.readFileSync(f);
@@ -225,6 +233,8 @@ files.forEach((f) => {
       console.log(`      ${m[0].slice(0, 70)}`);
     }
   });
+
+  if (isBinary(f)) return;
 
   UTF8_RULES.forEach((rule) => {
     if (text.includes(rule.text)) {
@@ -257,33 +267,40 @@ console.log('\n五、联网检查（本作承诺不联网）\n');
 
 /* 只查**玩家浏览器里真正会跑的东西**：index.html + css/ + js/。
    tools/ 下的验证脚本本身当然要联网——冒烟测试就是要去抓线上页面。
-   把工具一起扫，这条检查会永远亮红灯，然后被人忽略；
-   一条永远报警的检查等于没有检查。 */
+
+   例外只有 js/content.js：它是纯数据（史实页的正文），里面的
+   http 链接是给玩家点出去看新闻来源的，页面自己并不去抓。
+   按"文件"豁免而不是按"域名"豁免，是因为按域名列白名单会
+   一边红一边漏：换了新闻源就误报，而任何在列域名下的真实请求
+   又照样溜过去。 */
+const isData = (f) => rel(f) === 'js/content.js';
 const shipped = (f) => {
   const r = rel(f);
   return r === 'index.html' || r.startsWith('css/') || r.startsWith('js/');
 };
 
+/* 光禁 URL 字面量不够：真正的联网还可以不写 URL。
+   这几个 API 一旦出现在会跑的代码里，就是不联网承诺的破口。 */
+const NET_API = /\b(fetch|XMLHttpRequest|WebSocket|EventSource|importScripts)\s*\(|navigator\.sendBeacon|@import\s+url\(/;
+
 let netHits = 0, scanned = 0;
 files.forEach((f) => {
-  if (!shipped(f)) return;
+  if (!shipped(f) || isData(f)) return;
   scanned++;
   const text = fs.readFileSync(f, 'utf8');
-  // 允许的例外：史实页里引用新闻报道的外链，以及 SVG 命名空间
   text.split('\n').forEach((line, i) => {
-    if (/https?:\/\//.test(line)) {
-      const allowed = /www\.w3\.org|news\.ifeng\.com|epaper\.gmw\.cn|china\.haiwainet\.cn|target="_blank"/.test(line);
-      if (!allowed) {
-        netHits++;
-        problems.push(`疑似外部请求：${rel(f)}:${i + 1}`);
-        console.log(`  ✗ ${rel(f)}:${i + 1}  ${line.trim().slice(0, 80)}`);
-      }
-    }
+    const bad = /https?:\/\//.test(line) || NET_API.test(line);
+    if (!bad) return;
+    // 允许的例外：SVG 命名空间字符串
+    if (/www\.w3\.org/.test(line)) return;
+    netHits++;
+    problems.push(`疑似外部请求：${rel(f)}:${i + 1}`);
+    console.log(`  ✗ ${rel(f)}:${i + 1}  ${line.trim().slice(0, 80)}`);
   });
 });
 if (!netHits) {
   console.log(`  ✓ 游戏代码（${scanned} 个文件）里没有任何运行时外部请求`);
-  console.log('    （史实页引用新闻来源的外链除外，那是给玩家点出去看的，不是页面去抓的）');
+  console.log('    （js/content.js 是数据文件，里面的新闻来源外链是给玩家点出去看的）');
 }
 
 /* ── 结论 ───────────────────────────────────────────────── */
