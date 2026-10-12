@@ -57,26 +57,37 @@ console.log(`线上：${BASE}`);
 console.log(`本地：${ROOT}`);
 console.log(`待校验：${files.length} 个文件\n`);
 
-let bad = 0, checked = 0, skipped = 0;
+let bad = 0, checked = 0;
+const netFail = [];
 const sha = (b) => crypto.createHash('sha256').update(b).digest('hex').slice(0, 12);
+
+/* 取一个文件，失败重试几次。
+   这是个网络工具，偶发的连接重置很常见。一次抖动就报"内容不一致"，
+   和那些会骗人的测试是同一类错误——所以「取不到」和「内容不同」
+   必须分开报，前者是**无法判定**，不是失败结论。 */
+async function get(url, tries = 3) {
+  let last = '未知';
+  for (let i = 0; i < tries; i++) {
+    try {
+      const r = await fetch(url, { redirect: 'follow' });
+      if (r.ok) return { res: r };
+      last = 'HTTP ' + r.status;
+    } catch (e) { last = e.message; }
+    await new Promise((s) => setTimeout(s, 1200 * (i + 1)));
+  }
+  return { err: last };
+}
 
 for (const rel of files) {
   const local = fs.readFileSync(path.join(ROOT, rel));
-  let res;
-  try {
-    res = await fetch(BASE + rel + '?cb=' + Date.now(), { redirect: 'follow' });
-  } catch (e) {
-    console.log(`  ✗ ${rel.padEnd(24)} 取不到：${e.message}`);
-    bad++;
-    continue;
-  }
-  if (!res.ok) {
-    console.log(`  ✗ ${rel.padEnd(24)} HTTP ${res.status}`);
-    bad++;
+  const got = await get(BASE + rel + '?cb=' + Date.now());
+  if (got.err) {
+    console.log(`  ? ${rel.padEnd(24)} 取不到（已重试 3 次）：${got.err}`);
+    netFail.push(rel);
     continue;
   }
   /* fetch 会自动解 gzip，所以比较的是解压后的真实字节。 */
-  const remote = Buffer.from(await res.arrayBuffer());
+  const remote = Buffer.from(await got.res.arrayBuffer());
   if (remote.equals(local)) {
     checked++;
     console.log(`  ✓ ${rel.padEnd(24)} ${String(local.length).padStart(7)} B  ${sha(local)}`);
@@ -92,8 +103,15 @@ for (const rel of files) {
 }
 
 console.log('\n' + '─'.repeat(60));
+
 if (bad) {
-  console.log(`✗ ${bad} 个文件与本地不一致（通过 ${checked} 个）`);
+  console.log(`✗ ${bad} 个文件内容与本地不一致（通过 ${checked} 个）`);
+  process.exit(1);
+}
+if (netFail.length) {
+  console.log(`? ${netFail.length} 个文件取不到 —— **无法判定**，不代表线上不一致：`);
+  console.log('  ' + netFail.join('、'));
+  console.log('  先重跑一次；持续失败再查 GitHub Pages 状态。');
   process.exit(1);
 }
 console.log(`✓ 全部 ${checked} 个文件在线上与本地逐字节一致`);
