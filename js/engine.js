@@ -63,7 +63,7 @@
     PEOPLE.forEach(function (p) { rel[p] = 0; });
     return {
       name: (name || '阿生').trim().slice(0, 8) || '阿生',
-      nodeId: 'p_dock',
+      nodeId: 'p_open',
       day: 1,
       body: 100,        // 体力
       standing: 50,     // 处境：这条船上还有没有人拿你当自己人
@@ -89,7 +89,7 @@
     var prev = Engine.loadProgress();
     this.state = this.newState(name);
     this.state.run = (prev.runs || 0) + 1;
-    this.enter('p_dock');
+    this.enter('p_open');
     this.save();
     return this.state;
   };
@@ -488,7 +488,7 @@
 
     // 只沿"主线"做可达性：storylet 是靠池子抽的，不参与遍历。
     // e_body / e_standing 是 vitalCheck 的落点，没有入边，得当作种子。
-    var stack = ['p_dock', 'e_body', 'e_standing'];
+    var stack = ['p_open', 'e_body', 'e_standing'];
     while (stack.length) {
       var cur = stack.pop();
       if (reachable[cur] || !Engine.nodes[cur]) continue;

@@ -270,6 +270,37 @@ const personas = {
     return best;
   },
 
+  /* e_hero 要求「手上一滴血都没有」和「救过一个人」同时成立。
+     这两件事在剧情里隔着好几场戏，随机局撞不到；
+     「一心保干净」不认识 saved_a_life，「救人优先」又不在乎血。
+     所以必须再要一个人格，同时把这两个目标当成硬指标来追——
+     否则 README 里承诺的「藏着最难的一条路」就是一句没人验证过的话。
+
+     权重顺序很关键，这里踩过一次：一开始「救人」的权重高于「保干净」，
+     结果这个假玩家在第三幕一看到能救人的选项就扑上去——那条路是
+     「替赵木成动手」，救下来了，但手也脏了，走到的是 e_hero_escape。
+     e_hero 要的是**既干净又救了人**，所以必须先满足干净，再在里面挑救人。 */
+  '干净地救人（最难的那条路）': (opts, node, eng) => {
+    const isEnding = (i) => {
+      const t = node.choices[i].to;
+      return !!(t && eng.nodes[t] && eng.nodes[t].ending);
+    };
+    let best = opts[0], bestScore = -Infinity;
+    opts.forEach((i) => {
+      const c = node.choices[i];
+      const e = c.effect || {}, f = e.flags || {};
+      let s = 0;
+      s -= (e.blood || 0) * 10000;            // 一、一滴血都不能沾（最高优先）
+      if (f.saved_a_life) s += 5000;          // 二、在不沾血的前提下救人
+      if (f.opened_valve) s -= 8000;          // 但不要拖着全船一起死
+      s += (e.standing || 0) * 2 + (e.body || 0);
+      // 真人不会主动往别的结局里钻；非结局选项一律优先
+      if (isEnding(i)) s -= 900;
+      if (s > bestScore) { bestScore = s; best = i; }
+    });
+    return best;
+  },
+
   /* e_death 需要沾血三次。前一个人格永远躲着血走，随机局又活不到
      那么远，所以必须专门有一个人去追血——否则「主犯线」的结局
      在数据上等于不存在。 */

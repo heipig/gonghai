@@ -170,6 +170,46 @@ body.mood-calm   { --accent: var(--sea); }
 
 /* ─────────────── 标题页 ─────────────── */
 
+/* 主视觉：雾里的那条船，灯全开着。
+   图没加载出来也没关系——.sea-bg 的渐变本来就在底下兜着，
+   而且 onerror 会把这个 img 直接删掉，不会留一个破图标。
+   它比 .title-inner(z-index:3) 低，所以永远不会挡住按钮。 */
+.title-hero {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 46%;
+  opacity: .5;
+  filter: saturate(.72) contrast(1.12) brightness(.6);
+  pointer-events: none;
+  animation: heroIn 1.8s ease-out both;
+}
+
+/* 压暗。标题和按钮必须始终读得清，哪怕图很亮——
+   这张图上有一排两千瓦的灯，不压的话字会糊掉。 */
+.title-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 50%,
+      rgba(4, 7, 10, .60) 0%, rgba(4, 7, 10, .26) 55%, transparent 100%),
+    linear-gradient(180deg,
+      rgba(4, 7, 10, .84) 0%, rgba(4, 7, 10, .30) 32%,
+      rgba(4, 7, 10, .34) 68%, rgba(4, 7, 10, .88) 100%);
+}
+
+@keyframes heroIn {
+  from { opacity: 0; transform: scale(1.05); }
+  to   { opacity: .5; transform: scale(1); }
+}
+
+body.reduce-motion .title-hero { animation: none; }
+
 .title-inner {
   position: relative;
   z-index: 3;

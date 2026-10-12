@@ -27,7 +27,12 @@ import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const TMP = path.join(ROOT, 'tools', '.smoke.html');
+// 临时页面写在**仓库根目录**，不是 tools/。
+// 这不是随手放的：相对地址是以文档所在目录为基准解析的，而 app.js 运行时
+// 才给 <img> 赋 src（'img/lamps.jpg' 这种）。页面一旦放进 tools/，
+// 那些运行时地址就会指向 tools/img/——永远 404，而静态检查看不出来。
+// 放在根目录，css/、js/、img/ 全部按原样解析，测的就是玩家双击的那个页面。
+const TMP = path.join(ROOT, '.smoke.html');
 const PROFILE = path.join(ROOT, 'tools', '.smoke-profile');
 
 const BROWSERS = [
@@ -63,13 +68,15 @@ if (BASE) {
   }
   html = await res.text();
   target = `线上 ${BASE}`;
-  html = html.replace(/href="css\//g, `href="${BASE}css/`)
-             .replace(/src="js\//g, `src="${BASE}js/`);
+  // 临时页面在本地，用 <base> 把所有相对地址指回线上：css/、js/、img/，
+  // 以及 app.js 运行时才设置的 img.src。
+  // 不这么做的话，运行时的 img.src 会解析成本地文件——测线上却加载本地图，
+  // 那这个测试就白做了。
+  html = html.replace(/<head([^>]*)>/i, `<head$1><base href="${BASE}">`);
 } else {
   html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
   target = '本地 index.html';
-  html = html.replace(/href="css\//g, 'href="../css/')
-             .replace(/src="js\//g, 'src="../js/');
+  // 本地一个字都不重写。临时页面就在仓库根目录，相对地址天然正确。
 }
 
 /* ── 注入的测试脚本 ─────────────────────────────────────── */
@@ -135,6 +142,21 @@ const TEST_SCRIPT = `
                (readable ? ruleCount + ' 条规则可读' : '跨域/规则数不可读') +
                '，body 背景 ' + bodyBg + '）');
 
+      // 标题主视觉是整部作品的第一印象，也是全站唯一一张"页面一打开就该在"的图。
+      // 它真出过事：部署管线把 base64 当成文件内容存进了仓库，提交和 Pages
+      // 部署都报成功，而线上的图全是坏的。所以这里显式等它加载完再断言，
+      // 不留"玩家会告诉我们"的余地。
+      var hero = q('.title-hero');
+      if (!hero) {
+        fail.push('标题页没有主视觉（.title-hero）');
+      } else {
+        for (var w = 0; w < 40 && !hero.complete; w++) await wait(50);
+        var hsrc = hero.getAttribute('src');
+        if (!hero.complete) fail.push('标题主视觉一直没加载完：' + hsrc);
+        else if (hero.naturalWidth === 0) fail.push('标题主视觉加载失败：' + hsrc);
+        else log.push('标题主视觉已加载（' + hero.naturalWidth + '×' + hero.naturalHeight + '）');
+      }
+
       q('#input-name').value = '测试';
       q('#btn-start').click();
       await wait(80);
@@ -152,7 +174,7 @@ const TEST_SCRIPT = `
       var steps = 0;
       // 配图是这一版新加的东西，静态检查看不出 img 有没有真的渲染出来，
       // 只有真浏览器能证明：#figure 里到底有没有 <img>，图有没有加载成功。
-      var sawFigure = false, brokenImg = 0;
+      var sawFigure = false, figSrcs = {};
       for (var run = 0; run < 6; run++) {
         for (var i = 0; i < 400; i++) {
           if (q('#screen-ending').classList.contains('is-active')) break;
@@ -160,7 +182,7 @@ const TEST_SCRIPT = `
           var figImg = q('#figure img');
           if (figImg) {
             sawFigure = true;
-            if (figImg.complete && figImg.naturalWidth === 0) brokenImg++;
+            figSrcs[figImg.getAttribute('src')] = 1;
           }
           if (q('#figure .img-slot')) sawSlot = true;
           var btns = Array.prototype.slice.call(q('#choices').querySelectorAll('.choice:not([disabled])'));
@@ -201,8 +223,25 @@ const TEST_SCRIPT = `
 
       var prog = window.GH.Engine.loadProgress();
       if (!sawFigure) fail.push('六局都没有渲染出任何配图（#figure 一直是空的）');
-      if (brokenImg) fail.push('有 ' + brokenImg + ' 次配图加载失败（img 的 naturalWidth 为 0）');
-      log.push('配图渲染：' + (sawFigure ? '出现过' : '从未出现') + (brokenImg ? '，坏图 ' + brokenImg + ' 次' : '，无坏图'));
+
+      // 把每一张出现过的图**显式重新加载**一遍再断言。
+      // 原来只在渲染那一刻看 naturalWidth——那时候图多半还没下载完，
+      // complete 是 false，于是坏图一次也数不出来。那个检查永远不会失败，
+      // 等于没测：部署把 8 张图存成了 base64 文本、线上全是坏的，它照样报"无坏图"。
+      var srcList = Object.keys(figSrcs);
+      var badSrc = [];
+      for (var si = 0; si < srcList.length; si++) {
+        var okImg = await new Promise(function (res) {
+          var im = new Image();
+          im.onload = function () { res(im.naturalWidth > 0); };
+          im.onerror = function () { res(false); };
+          im.src = srcList[si];
+        });
+        if (!okImg) badSrc.push(srcList[si]);
+      }
+      if (badSrc.length) fail.push('配图加载失败：' + badSrc.join('、'));
+      log.push('配图渲染：出现过 ' + srcList.length + ' 张，逐张实际加载验证' +
+               (badSrc.length ? '（坏 ' + badSrc.length + ' 张）' : '（无坏图）'));
 
       // 配图位标记必须双向正确：开了要有，没开就不能漏出来。
       // 只测正向的话，一个"永远显示标记"的实现也能通过——

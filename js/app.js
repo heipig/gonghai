@@ -594,10 +594,10 @@
       if (!hasSave) { /* 新局，不需要确认 */ }
       else { E.clearSave(); }
       E.state = E.newState(name);
-      E.enter('p_dock');
+      E.enter('p_open');
       E.save();
       show('game');
-      renderNode(E.node('p_dock'));
+      renderNode(E.node('p_open'));
     };
 
     $('#btn-continue').onclick = function () {
