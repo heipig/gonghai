@@ -28,7 +28,7 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const BASE = (process.argv[2] || 'https://heipig.github.io/gonghai/').replace(/\/?$/, '/');
 
 /* 只校验真正会被浏览器取的文件。.git / 临时文件 / 开发工具里的 md 不算。 */
-const SKIP_DIRS = new Set(['.git', 'node_modules', 'tools']);
+const SKIP_DIRS = new Set(['.git', 'node_modules', 'tools', 'notes']);
 const SKIP_FILES = new Set(['.smoke.html', 'tools/image-slots.md']);
 
 function walk(dir, rel = '') {
