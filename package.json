@@ -16,7 +16,10 @@
     "slots": "node tools/image-slots.mjs",
     "smoke": "node tools/smoke.mjs",
     "repo": "node tools/verify-repo.mjs",
-    "check": "node tools/verify-game.mjs && node tools/image-slots.mjs --check && node tools/smoke.mjs && node tools/verify-repo.mjs"
+    "live": "node tools/verify-live.mjs",
+    "check": "node tools/verify-game.mjs && node tools/image-slots.mjs --check && node tools/smoke.mjs && node tools/verify-repo.mjs",
+    "check:all": "npm run check && npm run slots:check && npm run live",
+    "slots:check": "node tools/image-slots.mjs --check"
   },
   "dependencies": {},
   "devDependencies": {}

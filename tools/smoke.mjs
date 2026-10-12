@@ -84,6 +84,8 @@ if (BASE) {
 const TEST_SCRIPT = `
 <script>
  window.GH_FORCE_SLOTS = ${SLOTS ? 'true' : 'false'};
+ window.GH_TEST_LIVE = ${BASE ? 'true' : 'false'};
+ window.GH_TEST_BASE = ${JSON.stringify(BASE || '')};
 </script>
 <script>
 (function () {
@@ -106,10 +108,33 @@ const TEST_SCRIPT = `
 
   window.addEventListener('load', function () { setTimeout(run, 80); });
 
+  /* 统一出口：结果写进 DOM，由 node 那侧解析。
+     提前收工（比如线上脚本根本没加载）和正常跑完，都走这里。 */
+  function finish() {
+    var payload = 'SMOKE-RESULT:' + JSON.stringify({ ok: fail.length === 0, fail: fail, log: log });
+    var d = document.createElement('div');
+    d.id = 'smoke-output';
+    d.textContent = payload;
+    document.body.appendChild(d);
+  }
+
   async function run() {
     try {
       if (!screenIs('title')) fail.push('标题页没有激活');
-      if (!window.GH || !window.GH.Engine) fail.push('GH.Engine 没有挂上 window');
+      if (!window.GH || !window.GH.Engine) {
+        // 测线上时脚本要走网络。无头浏览器在受限环境里出不了网，症状和
+        // "线上 JS 坏了"一模一样——上次这里就报成「GH.Engine 没有挂上 window」，
+        // 差点让人去改本来没坏的代码。所以把两种情况分开说。
+        if (window.GH_TEST_LIVE) {
+          fail.push('线上脚本没能加载（GH.Engine 不在 window 上）。这一步要走网络：' +
+            '先手工确认无头浏览器能不能打开 ' + window.GH_TEST_BASE + '。' +
+            '浏览器出不了网属于环境问题，**不代表线上坏了**——' +
+            '线上内容请改用 node tools/verify-live.mjs 逐字节校验。');
+        } else {
+          fail.push('GH.Engine 没有挂上 window');
+        }
+        return finish();
+      }
       if (!window.GH.Content) fail.push('GH.Content 没有挂上 window');
       if (!window.GH.Audio) fail.push('GH.Audio 没有挂上 window');
       log.push('四个脚本都加载了，标题页正常');
@@ -255,11 +280,7 @@ const TEST_SCRIPT = `
       fail.push('未捕获异常: ' + err.message + ' || ' + (err.stack || '').split('\\n')[1]);
     }
 
-    var payload = 'SMOKE-RESULT:' + JSON.stringify({ ok: fail.length === 0, fail: fail, log: log });
-    var d = document.createElement('div');
-    d.id = 'smoke-output';
-    d.textContent = payload;
-    document.body.appendChild(d);
+    finish();
   }
 })();
 </script>
