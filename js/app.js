@@ -52,6 +52,18 @@
   var typing = null;   // 当前打字任务的 token
   var pendingNode = null;
 
+  /* 选项带回声（choice.echo）：
+     点完一个选项，下一页开头先应一声——「你说不参加，他就把刀收了回去」。
+     放在**选项上**而不是下一页的条件行上，是因为条件行有个结构性的坑：
+     用 unless 当"否则"兜底，它在所有其他分支上同时成立，于是选一个选项，
+     别人的回声也跟着冒出来。挂在选项上就不可能出现这种事。
+
+     上一页的选择在这里暂存，下一页渲染时插到最前面。 */
+  var pendingEcho = null;
+  /* 当前这一屏真正要显示的行（含回声）。跳过打字机时要按它重排，
+     不能用 node.text——那样回声会消失。 */
+  var curText = [];
+
   /* 配图位模式：?slots=1 打开。
      未配图的节点会显示一个虚线框，里面是这张图该画什么。
      这样后面补图的时候不用翻源码找位置。
@@ -218,7 +230,8 @@
     typing = null;
     var container = $('#text');
     container.innerHTML = '';
-    (node.text || []).forEach(function (it) { container.appendChild(makePara(it)); });
+    (curText && curText.length ? curText : (node.text || []))
+      .forEach(function (it) { container.appendChild(makePara(it)); });
     $('#skip-hint').hidden = true;
     // 必须和 renderNode 的分支保持一致：
     // 夜航节点没有 choices，它的按钮是 renderNightContinue 生成的。
@@ -251,6 +264,13 @@
     standM.querySelector('.meter-fill').style.width = s.standing + '%';
 
     var hand = $('#hand-value');
+    var smoke = $('#smoke-value');
+    if (smoke) {
+      smoke.textContent = s.smokes;
+      // 只剩一两根的时候给个提示色
+      smoke.className = 'meter-value' + (s.smokes <= 1 ? ' blood' : '');
+    }
+
     hand.textContent = handLabel();
     hand.className = 'meter-value ' + (s.blood > 0 ? 'blood' : 'clean');
   }
@@ -332,7 +352,17 @@
 
     renderFigure(node);
     $('#choices').innerHTML = '';
-    typeOut($('#text'), node.text || [], function () {
+
+    /* 上一页那个选项的回声，插在最前面。用掉就清掉——
+       否则它会一直粘在后面的每一屏上。 */
+    var items = node.text || [];
+    if (pendingEcho) {
+      items = [{ t: pendingEcho, cls: 'echo' }].concat(items);
+      pendingEcho = null;
+    }
+    curText = items;
+
+    typeOut($('#text'), items, function () {
       if (node.night) return renderNightContinue(node);
       renderChoices(node);
     });
@@ -420,6 +450,12 @@
 
     if (r.blocked) { flashDeltas(null); return; }
 
+    /* 这个选项的回声留给下一页。放在这里而不是 effect 里，
+       是因为它是**给人看的文字**，不是数值。 */
+    if (node.choices[index] && node.choices[index].echo) {
+      pendingEcho = node.choices[index].echo;
+    }
+
     flashDeltas(effect);
     if (tone === 'blood') { shake(); A.hit('impact'); }
 
@@ -452,7 +488,14 @@
 
     var body = $('#ending-body');
     body.innerHTML = '';
-    (E.visibleText(ending.body) || []).forEach(function (it) { body.appendChild(makePara(it)); });
+
+    /* 最后那个选项的回声也要算数——否则玩家最后一次点击没有回音。 */
+    var last = (E.visibleText(ending.body) || []);
+    if (pendingEcho) {
+      last = [{ t: pendingEcho, cls: 'echo' }].concat(last);
+      pendingEcho = null;
+    }
+    last.forEach(function (it) { body.appendChild(makePara(it)); });
 
     // 结算面板
     var s = E.state;

@@ -46,13 +46,21 @@ a3_valve: {
     { label: '下机舱，把阀关上。', to: 'a3_raft',
       effect: { flags: { closed_valve: true }, body: -14, standing: -6 },
       require: { flag: 'knows_valve', why: '你不知道海底总阀在哪个位置，下去了也是白下。' },
-      tone: 'risk' },
+      tone: 'risk',
+      echo: '你下去关过阀，没关住。上来的时候衣服全湿了。'
+    },
     { label: '下机舱去看一眼，什么都不动。', to: 'a3_raft',
-      effect: { flags: { saw_valve: true }, body: -10 } },
+      effect: { flags: { saw_valve: true }, body: -10 },
+      echo: '你下去看过一眼。水是从一个口子里往里灌的，你什么也做不了。'
+    },
     { label: '跟着大家找能漂的东西，钉木筏。', to: 'a3_raft',
-      effect: { body: -12, standing: +4 } },
+      effect: { body: -12, standing: +4 },
+      echo: '你跟着大家找能漂的东西,钉木筏。'
+    },
     { label: '问刘贵夺：船会沉吗。', to: 'a3_raft',
-      effect: { rel: { liu: +1 }, body: -6 } }
+      effect: { rel: { liu: +1 }, body: -6 },
+      echo: '你去问了刘贵夺:船会沉吗。'
+    }
   ]
 },
 
@@ -62,8 +70,6 @@ a3_raft: {
   id: 'a3_raft', act: '第三幕', place: '右舷', date: '2011 年 7 月 25 日 清晨',
   mood: 'blood', ambience: 'sea-tense', day: 213, img: 'img/raft.jpg',
   text: [
-    { t: '你下去关过阀，没关住。上来的时候衣服全湿了。', if: { flag: 'closed_valve' } },
-    { t: '你下去看过一眼。水是从一个口子里往里灌的，你什么也做不了。', if: { flag: 'saw_valve' } },
     '船上有些木头、床板。你们连钉带绑做筏子，把能吃的往上装，然后放下水。',
     '你正在收拾救生筏，大副付义忠上了木筏。',
     '他一边笑一边冲你招手。',
@@ -79,13 +85,21 @@ a3_raft: {
   ],
   choices: [
     { label: '你跳下去。木筏上总比船上有活路。', to: 'e_raft',
-      effect: { flags: { got_on_raft: true } }, tone: 'risk' },
+      effect: { flags: { got_on_raft: true } }, tone: 'risk',
+      echo: '你翻过舷边,跳了下去。'
+    },
     { label: '你朝着木筏喊，让他们回来。', to: 'a3_iron',
-      effect: { body: -4, standing: +2, flags: { called_raft_back: true } } },
+      effect: { body: -4, standing: +2, flags: { called_raft_back: true } },
+      echo: '你朝着木筏喊,让他们回来。付义忠冲你笑了一下。'
+    },
     { label: '你再去拿一根绳子。', to: 'a3_iron',
-      effect: { body: -8, standing: +6, flags: { fetched_rope: true } } },
+      effect: { body: -8, standing: +6, flags: { fetched_rope: true } },
+      echo: '你转身又去拿了一根绳子。'
+    },
     { label: '你站着不动。', to: 'a3_iron',
-      effect: { body: -2, standing: -4 } }
+      effect: { body: -2, standing: -4 },
+      echo: '你站着没动。'
+    }
   ]
 },
 
@@ -110,13 +124,19 @@ a3_iron: {
   ],
   choices: [
     { label: '把铁坠递到前面去，自己不扔。', to: 'a3_song',
-      effect: { standing: -6, body: -4, flags: { passed_iron: true } } },
+      effect: { standing: -6, body: -4, flags: { passed_iron: true } },
+      echo: '你把铁坠一个一个递到前面去。你自己一个也没扔。'
+    },
     { label: '抓起铁坠，往海里扔。', to: 'a3_song',
       effect: { blood: +1, standing: +10, body: -9,
-                flags: { threw_iron: true } }, tone: 'risk' },
+                flags: { threw_iron: true } }, tone: 'blood',
+      echo: '你把铁坠扔进了海里。'
+    },
     { label: '抱着铁坠站在原地。', to: 'a3_song',
       effect: { standing: -3, body: -6, flags: { held_iron: true },
-                tone: 'risk' } }
+                tone: 'risk' },
+      echo: '你抱着一摞铁坠站在原地,一个也没扔。'
+    }
   ]
 },
 
@@ -142,15 +162,23 @@ a3_song: {
   choices: [
     { label: '「我来。」你把刀接过来。', to: 'a3_song2',
       effect: { flags: { saved_a_life: true, took_ma_place: true },
-                blood: +1, standing: +6, body: -12 }, tone: 'risk' },
+                blood: +1, standing: +6, body: -12 }, tone: 'blood',
+      echo: '你把刀接了过来。所以现在，轮到别人看着你。'
+    },
     { label: '「别捅了。你俩绑起来，扔下去得了。」', to: 'a3_song2',
       effect: { flags: { gave_the_order: true }, standing: +2, body: -6 },
-      tone: 'risk' },
+      tone: 'risk',
+      echo: '你说了「绑起来扔下去得了」。刘贵夺听了你的。'
+    },
     { label: '「赵木成是你兄弟。你自己看着办。」', to: 'a3_song2',
       effect: { flags: { spoke_for_ma: true }, standing: -4, body: -6 },
-      tone: 'risk' },
+      tone: 'risk',
+      echo: '你替赵木成说了话。说完你就知道，这话不该说出口。'
+    },
     { label: '你转过身去。', to: 'a3_song2',
-      effect: { standing: -2, body: -4 } }
+      effect: { standing: -2, body: -4 },
+      echo: '你转过身去。'
+    }
   ]
 },
 
@@ -158,9 +186,6 @@ a3_song2: {
   id: 'a3_song2', act: '第三幕', place: '右舷甲板', date: '2011 年 7 月 25 日 上午',
   mood: 'blood', ambience: 'sea-tense', day: 213,
   text: [
-    { t: '你把刀接了过来。所以现在，轮到别人看着你。', if: { flag: 'took_ma_place' }, cls: 'inner' },
-    { t: '你说了「绑起来扔下去得了」。刘贵夺听了你的。', if: { flag: 'gave_the_order' }, cls: 'inner' },
-    { t: '你替赵木成说了话。说完你就知道，这话不该说出口。', if: { flag: 'spoke_for_ma' } },
     '项立山立刻拿起一把鱼刀，准备捅宋国春。',
     '刘贵夺没让。',
     { t: '「别捅了，你俩绑起来，扔下去得了。」', cls: 'q' },
@@ -173,12 +198,18 @@ a3_song2: {
   ],
   choices: [
     { label: '你去推宋国春。', to: 'a3_verdict',
-      effect: { body: -8, standing: +4, flags: { pushed_song: true } } },
+      effect: { body: -8, standing: +4, flags: { pushed_song: true } },
+      echo: '你去推了宋国春。'
+    },
     { label: '你不动。让别人去。', to: 'a3_verdict',
-      effect: { body: -3, standing: -3 } },
+      effect: { body: -3, standing: -3 },
+      echo: '你站着没动。有人替你动了手。'
+    },
     { label: '你把他从甲板上拉起来，藏到机舱里。', to: 'a3_verdict',
       effect: { flags: { saved_a_life: true, hid_song: true },
-                standing: -14, body: -16 }, tone: 'risk' }
+                standing: -14, body: -16 }, tone: 'risk',
+      echo: '你把他从甲板上拉起来,拖进了机舱。'
+    }
   ]
 },
 
@@ -215,22 +246,34 @@ a3_iron2: {
   choices: [
     { label: '接过刀。', to: 'a3_wait',
       effect: { blood: +1, standing: +10, body: -10,
-                flags: { took_knife: true } }, tone: 'risk' },
+                flags: { took_knife: true } }, tone: 'blood',
+      echo: '你把刀接了过来。'
+    },
     { label: '「绑起来扔下去。我不捅。」', to: 'a3_wait',
       effect: { blood: +1, standing: +12, body: -8,
-                flags: { ordered_dumping: true } }, tone: 'risk' },
+                flags: { ordered_dumping: true } }, tone: 'blood',
+      echo: '你说了「绑起来扔下去」。话是你说的,手不是你的。'
+    },
     { label: '「我不捅。你们要扔，自己扔。」', to: 'a3_wait',
-      effect: { standing: -6, body: -6, flags: { stood_down: true } } },
+      effect: { standing: -6, body: -6, flags: { stood_down: true } },
+      echo: '「我不捅。你们要扔,自己扔。」'
+    },
     { label: '「我不干。」', to: 'e_sunk',
       effect: { standing: -14, body: -10, flags: { refused_final: true } },
-      tone: 'risk' },
+      tone: 'risk',
+      echo: '你说了「我不干」。说完你就不看他们的脸了。'
+    },
     { label: '「你还记不记得你答应过谁。」你把手背到身后。', to: 'e_hero_escape',
       effect: {}, require: { flag: 'saved_a_life',
-        why: '你没有救过谁，这句话说不出口。' }, tone: 'risk' },
+        why: '你没有救过谁，这句话说不出口。' }, tone: 'risk',
+      echo: '你问他记不记得答应过谁。他看了你很久,什么也没说。'
+    },
     { label: '你转身下机舱。你知道那个阀在哪儿。', to: 'e_valve',
       effect: { flags: { opened_valve: true }, standing: -10, body: -12 },
       require: { flag: 'knows_valve',
-        why: '你不知道海底总阀在哪儿——你从来没下到过船底。' }, tone: 'risk' }
+        why: '你不知道海底总阀在哪儿——你从来没下到过船底。' }, tone: 'risk',
+      echo: '你转身下了机舱。你知道那个阀在哪儿。'
+    }
   ]
 },
 
@@ -259,7 +302,7 @@ a3_back: {
   imgSlot: '大雨里的渔港码头，岸边停着大巴车和救护车，二三十个人在等。灰蒙蒙的。',
   text: [
     '中国渔政的救援船靠上来的时候，是七天之后。',
-    '渔政船的领导上船之后，船长李承权把赵木成拉到一边，偷偷塞给他一张纸条。',
+    '渔政船的领导上船之后,船长李承权把你们一个一个拉到一边,每人塞了一张纸条。',
     '上面写着编造的谎话：包德一伙人行凶后乘木筏逃走，剩下 11 名幸存者。',
     { t: '刘贵夺也早就把所有人的家庭住址全抄下来了。谁要敢说实话，他就找人。', cls: 'inner' },
     '回到石岛码头那天是 2011 年 8 月 13 日，下着大雨。',
@@ -270,11 +313,17 @@ a3_back: {
   ],
   choices: [
     { label: '你在车上把知道的全说了。', to: 'a3_trial',
-      effect: { standing: -4, body: -6, flags: { told_truth: true } } },
+      effect: { standing: -4, body: -6, flags: { told_truth: true } },
+      echo: '在车上你就全说了。所以到了这一步，你手里没有别的东西可以交出去。'
+    },
     { label: '你按那张纸条上的说。', to: 'a3_trial',
-      effect: { standing: +4, body: -2, flags: { lied_first: true } } },
+      effect: { standing: +4, body: -2, flags: { lied_first: true } },
+      echo: '你照着那张纸条说了。说的时候你自己都不信。'
+    },
     { label: '你什么都不说。', to: 'a3_trial',
-      effect: { body: -4 } }
+      effect: { body: -4 },
+      echo: '你什么都没说。'
+    }
   ]
 },
 
@@ -284,8 +333,6 @@ a3_trial: {
   id: 'a3_trial', act: '第三幕', place: '威海 · 法庭', date: '2013 年 7 月 19 日',
   mood: 'calm', ambience: 'quiet', day: 302, img: 'img/court.jpg',
   text: [
-    { t: '在车上你就全说了。所以到了这一步，你手里没有别的东西可以交出去。', if: { flag: 'told_truth' } },
-    { t: '你照着那张纸条说了。说的时候你自己都不信。', if: { flag: 'lied_first' } },
     '审你的时候，你说包德杀了人逃跑了。',
     '审你的人说：',
     { t: '「你说的这个，要是我跟你说，你自己会不会信？」', cls: 'q' },
@@ -299,11 +346,17 @@ a3_trial: {
   ],
   choices: [
     { label: '把腰挺直。', to: 'a3_confess',
-      effect: { body: -3, standing: +3 } },
+      effect: { body: -3, standing: +3 },
+      echo: '你把腰挺直了。'
+    },
     { label: '低头。你不敢看旁听席。', to: 'a3_confess',
-      effect: { body: -1 } },
+      effect: { body: -1 },
+      echo: '你低着头,没敢往旁听席那边看。'
+    },
     { label: '你想举手说点什么。', to: 'a3_confess',
-      effect: { body: -5, standing: +2, flags: { tried_to_speak: true } } }
+      effect: { body: -5, standing: +2, flags: { tried_to_speak: true } },
+      echo: '你举了一下手。法警看了你一眼,你又放下了。'
+    }
   ]
 },
 
@@ -321,10 +374,12 @@ a3_confess: {
     '开庭时你戴着手铐脚镣走进法庭，看见你妈坐在旁听席上泪流不止。',
     '你也忍不住眼泪，想回头看看她，想跟她说句话，屡次被法警制止。',
     { t: '下面是这八个月里，你做过的事。', cls: 'inner' },
-    { t: '', cls: 'log' }
+    '{{log}}'
   ],
   choices: [
-    { label: '听判决。', to: 'a3_verdict2', effect: {} }
+    { label: '听判决。', to: 'a3_verdict2', effect: {},
+      echo: '你站在那儿,等他们念。'
+    }
   ]
 },
 
@@ -510,7 +565,7 @@ e_four: {
   ending: {
     key: 'four', kind: '你活着回来了', title: '回家给妈做饭',
     body: [
-      '跟赵木成同一个监室的嫌犯也是船员，在一条近海收购船上杀了八个人，抢走十万块钱。',
+      '跟你同一个监室的嫌犯也是船员,在一条近海收购船上杀了八个人,抢走十万块钱。',
       '那个人神神叨叨，端坐时脑袋乱晃、双手狂甩，把一本教人放下心结的心理书背得烂熟。',
       { t: '你心想，太对不起家人了。我妈这些年为我付出那么多。', cls: 'inner' },
       '听见「有期徒刑四年」的时候，你心里乐坏了，当庭表示不上诉。',

@@ -34,11 +34,17 @@ a2_hijack: {
   ],
   choices: [
     { label: '站在原地，什么也不做。', to: 'a2_xia',
-      effect: { body: -4 } },
+      effect: { body: -4 },
+      echo: '你站在原地,一动没动。'
+    },
     { label: '往大甲板走，离船长室远一点。', to: 'a2_xia',
-      effect: { body: -2, standing: +1 } },
+      effect: { body: -2, standing: +1 },
+      echo: '你往大甲板走,离船长室越远越好。'
+    },
     { label: '把马玉超从下铺拉起来，带在身边。', to: 'a2_xia',
-      effect: { rel: { ma: +2 }, body: -5, flags: { kept_ma_close: true } } }
+      effect: { rel: { ma: +2 }, body: -5, flags: { kept_ma_close: true } },
+      echo: '船头调过来之前，你就把马玉超从下铺拉起来了。他一直跟着你。'
+    }
   ]
 },
 
@@ -46,7 +52,6 @@ a2_xia: {
   id: 'a2_xia', act: '第二幕', place: '楼梯口', date: '2011 年 6 月 16 日 23:40',
   mood: 'blood', ambience: 'sea-tense', day: 172, img: 'img/barrel.jpg',
   text: [
-    { t: '船头调过来之前，你就把马玉超从下铺拉起来了。他一直跟着你。', if: { flag: 'kept_ma_close' } },
     '大师傅老夏听见动静，从厨房里冲出来，手里拿着刀。',
     '他往船长室那边冲。',
     { t: '「这帮小逼崽子还想劫船。」', cls: 'shout' },
@@ -58,11 +63,17 @@ a2_xia: {
   ],
   choices: [
     { label: '过去看一眼。', to: 'a2_xia2',
-      effect: { body: -5, flags: { saw_xia_die: true } } },
+      effect: { body: -5, flags: { saw_xia_die: true } },
+      echo: '你过去看了一眼。'
+    },
     { label: '转过身去。', to: 'a2_xia2',
-      effect: { body: -2, standing: -2 } },
+      effect: { body: -2, standing: -2 },
+      echo: '你转过身去。后面的事你没看。'
+    },
     { label: '把楼梯口的灯关掉。', to: 'a2_xia2',
-      effect: { body: -3, standing: +3, flags: { turned_off_light: true } } }
+      effect: { body: -3, standing: +3, flags: { turned_off_light: true } },
+      echo: '你把楼梯口的灯关了。'
+    }
   ]
 },
 
@@ -79,11 +90,17 @@ a2_xia2: {
   ],
   choices: [
     { label: '照常上工。', to: 'a2_silence',
-      effect: { body: +2, flags: { kept_working: true } } },
+      effect: { body: +2, flags: { kept_working: true } },
+      echo: '第二天你照常上了工。手上的活没停，脑子一直没转。'
+    },
     { label: '把老夏的东西收起来。', to: 'a2_silence',
-      effect: { standing: -3, body: -4, flags: { kept_xia_things: true } } },
+      effect: { standing: -3, body: -4, flags: { kept_xia_things: true } },
+      echo: '你把老夏的东西收进了一个纸箱。你不知道要交给谁。'
+    },
     { label: '去找马玉超。他脸色很难看。', to: 'a2_silence',
-      effect: { rel: { ma: +2 }, body: -2 } }
+      effect: { rel: { ma: +2 }, body: -2 },
+      echo: '你去找了马玉超。他坐在铺上,脸色很难看。'
+    }
   ]
 },
 
@@ -92,8 +109,6 @@ a2_silence: {
   mood: 'blood', ambience: 'quiet', day: 175,
   imgSlot: '一只拖鞋丢在舱室地上，鞋面上是已经发黑的血。只拍物，不拍人。',
   text: [
-    { t: '第二天你照常上了工。手上的活没停，脑子一直没转。', if: { flag: 'kept_working' } },
-    { t: '你把老夏的东西收进了一个纸箱。你不知道要交给谁。', if: { flag: 'kept_xia_things' } },
     '黄金波一直手抖。他抖了好几天。',
     '他说他只是想回家，他说他没想干这个。',
     '他拖鞋上全是血。他把那双拖鞋扔了，后来一直光着脚。',
@@ -103,11 +118,17 @@ a2_silence: {
   ],
   choices: [
     { label: '跟黄金波说两句话。', to: 'n_quiet',
-      effect: { rel: { huang: +2 }, body: -2 } },
+      effect: { rel: { huang: +2 }, body: -2 },
+      echo: '你跟黄金波说了两句话。他说他想回家。'
+    },
     { label: '把自己的铺位也挪到靠墙那边。', to: 'n_quiet',
-      effect: { body: -1, flags: { moved_bunk: true } } },
+      effect: { body: -1, flags: { moved_bunk: true } },
+      echo: '你把铺位挪到了靠墙那边。'
+    },
     { label: '一个人去船尾坐着。那里没别人。', to: 'n_quiet',
-      effect: { body: -3, flags: { sat_alone: true } } }
+      effect: { body: -3, flags: { sat_alone: true } },
+      echo: '你一个人去了船尾。那儿没别人。'
+    }
   ]
 },
 
@@ -145,15 +166,23 @@ a2_fuel: {
       effect: { flags: { blamed_wendou: true }, standing: +8, rel: { liu: +2 },
                 body: -6 }, tone: 'risk',
       require: { anyOf: ['peeked_engine', 'saw_engine_room', 'hid_in_engine'],
-                 why: '你没下过机舱，说不出这个话。' } },
+                 why: '你没下过机舱，说不出这个话。' },
+      echo: '你说底下像是有人拆的。刘贵夺盯着你,没说话。'
+    },
     { label: '「机器老了，正常。别听人瞎说。」', to: 'a2_engine',
       effect: { flags: { covered_engine: true }, rel: { liu: -2 },
-                standing: -3, body: -4 } },
+                standing: -3, body: -4 },
+      echo: '你说机器老了,正常。他哼了一声。'
+    },
     { label: '「我下去查一遍，查完再跟你说。」', to: 'a2_engine',
-      effect: { flags: { investigating: true }, body: -9, standing: +2 } },
+      effect: { flags: { investigating: true }, body: -9, standing: +2 },
+      echo: '你说你下去查一遍。他说行,你去。'
+    },
     { label: '「我只管甲板。机器的事你问温斗。」', to: 'a2_engine',
       effect: { flags: { pushed_to_wendou: true }, rel: { liu: -3 },
-                body: +2 }, tone: 'risk' }
+                body: +2 }, tone: 'risk',
+      echo: '你说机器的事让他问温斗。他看了你很久。'
+    }
   ]
 },
 
@@ -176,12 +205,18 @@ a2_engine: {
   ],
   choices: [
     { label: '把阀的位置记死在心里。', to: 'a2_fuel_report',
-      effect: { flags: { knows_valve: true }, body: -4 } },
+      effect: { flags: { knows_valve: true }, body: -4 },
+      echo: '你把那个位置记死了。'
+    },
     { label: '趁他走了，把阀柄拆下来藏了。', to: 'a2_fuel_report',
       effect: { flags: { knows_valve: true, hid_valve_handle: true },
-                standing: -4, body: -6 }, tone: 'risk' },
+                standing: -4, body: -6 }, tone: 'risk',
+      echo: '你把阀柄拆了下来,藏进铺底下。'
+    },
     { label: '上去，什么都不说。', to: 'a2_fuel_report',
-      effect: { body: -3 } }
+      effect: { body: -3 },
+      echo: '你什么都没说就上去了。他在底下没动。'
+    }
   ]
 },
 
@@ -196,16 +231,24 @@ a2_fuel_report: {
   choices: [
     { label: '「是温斗。他不希望船回去。」', to: 'a2_speaker',
       effect: { flags: { blamed_wendou: true }, standing: +10, rel: { liu: +3 },
-                body: -8 }, tone: 'risk' },
+                body: -8 }, tone: 'risk',
+      echo: '你把温斗的名字说出去了。之后刘贵夺就没再正眼看过你。'
+    },
     { label: '「查了，没查出问题。就是老了。」', to: 'a2_speaker',
       effect: { flags: { covered_engine: true }, rel: { liu: -1 },
-                body: -4, standing: -2 } },
+                body: -4, standing: -2 },
+      echo: '你说没查出问题。刘贵夺盯着你看了很久，最后什么也没说就走了。'
+    },
     { label: '「是王延龙。他这几天不对劲。」', to: 'a2_speaker',
       effect: { flags: { blamed_wangyanlong: true }, standing: +6,
-                body: -5 }, tone: 'risk' },
+                body: -5 }, tone: 'risk',
+      echo: '你把王延龙的名字说出去了。你跟他并不熟，你只知道他话少。'
+    },
     { label: '「我不知道。你别问我。」', to: 'a2_speaker',
       effect: { flags: { refused_answer: true }, rel: { liu: -4 },
-                standing: -6, body: -3 } }
+                standing: -6, body: -3 },
+      echo: '你说你不知道。刘贵夺笑了一下，那个笑很难看。'
+    }
   ]
 },
 
@@ -215,11 +258,6 @@ a2_speaker: {
   id: 'a2_speaker', act: '第二幕', place: '十二人间', date: '2011 年 7 月 20 日 凌晨',
   mood: 'blood', ambience: 'sea-tense', day: 206, img: 'img/speaker.jpg',
   text: [
-    { t: '你把温斗的名字说出去了。之后刘贵夺就没再正眼看过你。', if: { flag: 'blamed_wendou' }, cls: 'inner' },
-    { t: '你说没查出问题。刘贵夺盯着你看了很久，最后什么也没说就走了。', if: { flag: 'covered_engine' } },
-    { t: '你把王延龙的名字说出去了。你跟他并不熟，你只知道他话少。', if: { flag: 'blamed_wangyanlong' }, cls: 'inner' },
-    { t: '你说你不知道。刘贵夺笑了一下，那个笑很难看。', if: { flag: 'refused_answer' } },
-    { t: '后来你想过很多次：如果那天你换一句话说，会不会不一样。', unless: { anyOf: ['blamed_wendou', 'covered_engine', 'blamed_wangyanlong', 'refused_answer'] } },
     '那天十二点多（北京时间）天就亮了。你醒了，躺在那儿抽烟。',
     '从出事开始，十二人间的人就不多了，在屋里待着的时候也少。',
     '那天你看见好几个床上没有人。',
@@ -234,11 +272,17 @@ a2_speaker: {
   ],
   choices: [
     { label: '躺着不动。', to: 'a2_wang',
-      effect: { body: -6, flags: { lay_still: true } } },
+      effect: { body: -6, flags: { lay_still: true } },
+      echo: '你躺着没动。你听见自己的心跳比外面的动静还响。'
+    },
     { label: '起来，把门从里面顶上。', to: 'a2_wang',
-      effect: { body: -4, standing: -3, flags: { barred_door: true } } },
+      effect: { body: -4, standing: -3, flags: { barred_door: true } },
+      echo: '你把门从里面顶上了。后来你才想起来，顶的是自己人的门。'
+    },
     { label: '你也出去。站在看得见人的地方。', to: 'a2_wang',
-      effect: { body: -8, standing: +4, flags: { went_out: true }, blood: 0 } }
+      effect: { body: -8, standing: +4, flags: { went_out: true }, blood: 0 },
+      echo: '你跟着出去了。你站在看得见人的地方，一句话都没说。'
+    }
   ]
 },
 
@@ -246,9 +290,6 @@ a2_wang: {
   id: 'a2_wang', act: '第二幕', place: '十二人间', date: '2011 年 7 月 20 日 凌晨',
   mood: 'blood', ambience: 'sea-tense', day: 206,
   text: [
-    { t: '你躺着没动。你听见自己的心跳比外面的动静还响。', if: { flag: 'lay_still' } },
-    { t: '你把门从里面顶上了。后来你才想起来，顶的是自己人的门。', if: { flag: 'barred_door' } },
-    { t: '你跟着出去了。你站在看得见人的地方，一句话都没说。', if: { flag: 'went_out' } },
     '过了没几分钟，刘成建和包德两个人进来了，拿着刀。',
     '他们直接奔二副王永波的床上去。那阵儿他正在睡觉。',
     '到那儿一人扎了一刀。二副醒了，拿手去够他俩，没够着，直接掉地下了。',
@@ -266,12 +307,18 @@ a2_wang: {
   ],
   choices: [
     { label: '半躺在床上，一动不能动。', to: 'a2_brother',
-      effect: { body: -8, flags: { froze: true } } },
+      effect: { body: -8, flags: { froze: true } },
+      echo: '你半躺在床上，一动没动。'
+    },
     { label: '喊一声：「刘哥！」', to: 'a2_brother',
-      effect: { body: -6, standing: -2, flags: { called_out: true } } },
+      effect: { body: -6, standing: -2, flags: { called_out: true } },
+      echo: '你喊了一声「刘哥」。他回头看了你一眼，又转回去了。'
+    },
     { label: '过去，帮他把人抬起来。', to: 'a2_brother',
       effect: { blood: +1, standing: +12, body: -10,
-                flags: { helped_kill: true } }, tone: 'risk' }
+                flags: { helped_kill: true } }, tone: 'blood',
+      echo: '你过去帮他把人抬起来。你的手是干净地伸出去的。'
+    }
   ]
 },
 
@@ -279,9 +326,6 @@ a2_brother: {
   id: 'a2_brother', act: '第二幕', place: '十二人间', date: '2011 年 7 月 20 日 凌晨',
   mood: 'blood', ambience: 'sea-tense', day: 206,
   text: [
-    { t: '你半躺在床上，一动没动。', if: { flag: 'froze' } },
-    { t: '你喊了一声「刘哥」。他回头看了你一眼，又转回去了。', if: { flag: 'called_out' } },
-    { t: '你过去帮他把人抬起来。你的手是干净地伸出去的。', if: { flag: 'helped_kill' } },
     '刘贵夺动完手，站起来，四周看看，转过身看着你。',
     { t: '「当初让你加入你不加入，现在知道害怕了？」', cls: 'q' },
     '他那表情感觉挺兴奋，还满脸带笑。',
@@ -296,14 +340,22 @@ a2_brother: {
   ],
   choices: [
     { label: '「哥，我记得。」', to: 'a2_ma_night',
-      effect: { rel: { liu: +2 }, standing: +2, body: -3 } },
+      effect: { rel: { liu: +2 }, standing: +2, body: -3 },
+      echo: '「哥,我记得。」你说。'
+    },
     { label: '「我不怕。我没什么可怕的。」', to: 'a2_ma_night',
-      effect: { rel: { liu: -1 }, standing: -4, body: -5 } },
+      effect: { rel: { liu: -1 }, standing: -4, body: -5 },
+      echo: '「我不怕。我没什么可怕的。」'
+    },
     { label: '你想说一句马玉超。张了张嘴，没说出来。', to: 'a2_ma_night',
-      effect: { rel: { ma: +1 }, body: -5, flags: { wanted_to_speak_for_ma: true } } },
+      effect: { rel: { ma: +1 }, body: -5, flags: { wanted_to_speak_for_ma: true } },
+      echo: '你想说一句马玉超。张了张嘴,没说出来。'
+    },
     { label: '「我能不能搬出去，跟你住船长室。」', to: 'a2_ma_night',
       effect: { rel: { liu: +1 }, standing: +6, body: -4,
-                flags: { asked_captain_room: true }, tone: 'risk' } }
+                flags: { asked_captain_room: true }, tone: 'risk' },
+      echo: '你问他能不能搬出去,跟他住船长室。'
+    }
   ]
 },
 
@@ -323,11 +375,17 @@ a2_ma_night: {
   ],
   choices: [
     { label: '「那你过来，睡我这边。」', to: 'a2_magone',
-      effect: { rel: { ma: +4 }, body: -4, flags: { shared_bunk: true } } },
+      effect: { rel: { ma: +4 }, body: -4, flags: { shared_bunk: true } },
+      echo: '「那你过来,睡我这边。」你说。'
+    },
     { label: '「你要是想走，我陪你一起。」', to: 'a2_magone',
-      effect: { rel: { ma: +3 }, body: -6, flags: { offered_to_leave: true } } },
+      effect: { rel: { ma: +3 }, body: -6, flags: { offered_to_leave: true } },
+      echo: '「你要是想走,我陪你一起。」'
+    },
     { label: '装作睡着了。', to: 'a2_magone',
-      effect: { body: -2, flags: { pretended_sleep: true } } }
+      effect: { body: -2, flags: { pretended_sleep: true } },
+      echo: '你装作睡着了。他坐了很久才躺下。'
+    }
   ]
 },
 
@@ -348,12 +406,18 @@ a2_magone: {
   ],
   choices: [
     { label: '把马玉超的日记本收起来。', to: 'a2_hide',
-      effect: { flags: { has_ma_diary: true }, body: -5, standing: -2 } },
+      effect: { flags: { has_ma_diary: true }, body: -5, standing: -2 },
+      echo: '你把马玉超的日记本收了起来。'
+    },
     { label: '什么都不做。', to: 'a2_hide',
-      effect: { body: -3 } },
+      effect: { body: -3 },
+      echo: '你什么都没做。'
+    },
     { label: '去问刘贵夺，马玉超到底是不是卧底。', to: 'a2_hide',
       effect: { rel: { liu: -1 }, standing: -3, body: -6,
-                flags: { asked_about_ma: true } } }
+                flags: { asked_about_ma: true } },
+      echo: '你去问了刘贵夺,马玉超到底是不是卧底。'
+    }
   ]
 },
 
@@ -374,13 +438,21 @@ a2_hide: {
   ],
   choices: [
     { label: '不藏了。该干什么干什么。', to: 'a2_after',
-      effect: { body: +2, standing: +2 } },
+      effect: { body: +2, standing: +2 },
+      echo: '你不藏了。该干什么干什么。'
+    },
     { label: '把水舱的螺丝拧开一半，留个余地。', to: 'a2_after',
-      effect: { body: -6, standing: -2, flags: { loosened_hatch: true } } },
+      effect: { body: -6, standing: -2, flags: { loosened_hatch: true } },
+      echo: '你把水舱的螺丝拧开一半,留了个余地。'
+    },
     { label: '去找姜晓龙，把话挑明。', to: 'a2_after',
-      effect: { body: -4, rel: { liu: -1 }, standing: +2 } },
+      effect: { body: -4, rel: { liu: -1 }, standing: +2 },
+      echo: '你去找姜晓龙,把话挑明了。'
+    },
     { label: '没有一点能藏的地方。那就走马玉超那条路。', to: 'e_ma',
-      effect: { flags: { chose_the_sea: true }, body: -20 }, tone: 'risk' }
+      effect: { flags: { chose_the_sea: true }, body: -20 }, tone: 'risk',
+      echo: '你没有别的地方可去了。你选了马玉超走的那条路。'
+    }
   ]
 },
 
@@ -414,11 +486,17 @@ a2_cui: {
   ],
   choices: [
     { label: '跟他一起去找姜晓龙。', to: 'a2_jiang',
-      effect: { rel: { cui: +2 }, body: -4 } },
+      effect: { rel: { cui: +2 }, body: -4 },
+      echo: '你跟他一起去找了姜晓龙。'
+    },
     { label: '「我不去。这事儿没法回头。」', to: 'a2_jiang',
-      effect: { rel: { cui: -2 }, body: -2, flags: { refused_to_join: true } } },
+      effect: { rel: { cui: -2 }, body: -2, flags: { refused_to_join: true } },
+      echo: '「我不去。这事儿没法回头。」'
+    },
     { label: '「要去你自己去。我什么都不说。」', to: 'a2_jiang',
-      effect: { rel: { cui: -1 }, body: -3, standing: -2 } }
+      effect: { rel: { cui: -1 }, body: -3, standing: -2 },
+      echo: '「要去你自己去。我什么都不说。」'
+    }
   ]
 },
 
@@ -441,11 +519,17 @@ a2_jiang: {
   ],
   choices: [
     { label: '你追上刘贵夺，问他一句为什么。', to: 'a2_money',
-      effect: { rel: { liu: +2 }, body: -4, flags: { asked_liu_why: true } } },
+      effect: { rel: { liu: +2 }, body: -4, flags: { asked_liu_why: true } },
+      echo: '你追上刘贵夺,问他一句为什么。'
+    },
     { label: '什么也没说，跟他回去。', to: 'a2_money',
-      effect: { body: -2 } },
+      effect: { body: -2 },
+      echo: '你什么也没说,跟他回去了。'
+    },
     { label: '你留在甲板上，跟姜晓龙多聊一会儿。', to: 'a2_money',
-      effect: { rel: { cui: +1 }, body: -3, flags: { talked_jiang: true } } }
+      effect: { rel: { cui: +1 }, body: -3, flags: { talked_jiang: true } },
+      echo: '你留在甲板上,跟姜晓龙多聊了一会儿。'
+    }
   ]
 },
 
@@ -466,13 +550,19 @@ a2_money: {
   ],
   choices: [
     { label: '让你妈把钱打过来。', to: 'a2_huang',
-      effect: { body: -6, standing: +4, flags: { family_sent_money: true } } },
+      effect: { body: -6, standing: +4, flags: { family_sent_money: true } },
+      echo: '你给你妈打了电话,让她把钱打过来。'
+    },
     { label: '跟你妈说没事，别打钱。', to: 'a2_huang',
       effect: { body: -3, standing: -6, flags: { refused_money: true } },
-      tone: 'risk' },
+      tone: 'risk',
+      echo: '你跟你妈说没事,别打钱。'
+    },
     { label: '把卡交上去，但留了个心眼，报了个假数。', to: 'a2_huang',
       effect: { standing: +2, body: -8, flags: { lied_about_money: true },
-                tone: 'risk' } }
+                tone: 'risk' },
+      echo: '你把卡交上去了,但报了个假数。'
+    }
   ]
 },
 
@@ -490,13 +580,19 @@ a2_huang: {
   choices: [
     { label: '「我不动手。你叫别人。」', to: 'a2_before',
       effect: { standing: -8, rel: { liu: -2 }, body: -5,
-                flags: { refused_to_kill_baode: true }, tone: 'risk' } },
+                flags: { refused_to_kill_baode: true }, tone: 'risk' },
+      echo: '「我不动手。你叫别人。」'
+    },
     { label: '「好。」', to: 'a2_before',
       effect: { standing: +8, rel: { liu: +2 }, body: -8,
-                flags: { agreed_to_kill: true }, tone: 'risk' } },
+                flags: { agreed_to_kill: true }, tone: 'risk' },
+      echo: '你说了「好」。你自己都没想到会答应得那么快。'
+    },
     { label: '「我可以看着，不动手。」', to: 'a2_before',
       effect: { standing: +2, body: -6, flags: { watched_kill: true },
-                tone: 'risk' } }
+                tone: 'risk' },
+      echo: '「我可以看着,不动手。」'
+    }
   ]
 },
 
@@ -532,12 +628,18 @@ a2_baode: {
   ],
   choices: [
     { label: '把脸转开。', to: 'a2_noodle',
-      effect: { body: -4, flags: { turned_away: true } } },
+      effect: { body: -4, flags: { turned_away: true } },
+      echo: '你把脸转开了。'
+    },
     { label: '看着崔勇，不让他一个人喊。', to: 'a2_noodle',
-      effect: { rel: { cui: +3 }, body: -6, standing: +2 } },
+      effect: { rel: { cui: +3 }, body: -6, standing: +2 },
+      echo: '你看着崔勇,不让他一个人喊。'
+    },
     { label: '你也把手伸进那摊血里。', to: 'a2_noodle',
       effect: { blood: +1, standing: +12, body: -8,
-                flags: { smeared_blood: true }, tone: 'risk' } }
+                flags: { smeared_blood: true }, tone: 'blood' },
+      echo: '你也把手伸进了那摊血里。'
+    }
   ]
 },
 
@@ -557,12 +659,18 @@ a2_noodle: {
   ],
   choices: [
     { label: '你把被子蒙在头上。', to: 'a2_deep',
-      effect: { body: -6, standing: -2 } },
+      effect: { body: -6, standing: -2 },
+      echo: '你把被子蒙在头上,一整夜没敢动。'
+    },
     { label: '你起来，站在舱门口。', to: 'a2_deep',
-      effect: { body: -8, standing: +4, flags: { stood_at_door: true } } },
+      effect: { body: -8, standing: +4, flags: { stood_at_door: true } },
+      echo: '你起来了,站在舱门口。'
+    },
     { label: '你去找姜晓龙，问他下一个是谁。', to: 'a2_deep',
       effect: { rel: { liu: -1 }, body: -5, standing: +2,
-                flags: { asked_who_next: true } } }
+                flags: { asked_who_next: true } },
+      echo: '你去问姜晓龙下一个是谁。他说:别问。'
+    }
   ]
 },
 

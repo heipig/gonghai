@@ -158,9 +158,11 @@ s_ma_diary: {
 },
 
 s_jiang_kneel: {
-  id: 's_jiang_kneel', storylet: true, pool: 'act1', weight: 2, once: true,
-  require: { noneOf: ['phase_plan'], why: '这事后来你亲眼见过，不用别人再讲一遍。' },
-  act: '夜', place: '食堂', mood: 'tense', ambience: 'quiet',
+    id: 's_jiang_kneel', storylet: true, pool: 'act1', weight: 2, once: true,
+  require: { noneOf: ['phase_plan'], why: '这事后来你亲眼见过,不用别人再讲一遍。' },
+  /* 这一场和主线 p_jiang 是同一件事。这里先看过一次,
+     主线那边就少讲一遍——否则玩家会把同一场戏看两遍。 */
+  onEnter: { flags: { saw_jiang_kneel: true } }, act: '夜', place: '食堂', mood: 'tense', ambience: 'quiet',
   imgSlot: '食堂里一个人跪在地上，另一个人站着。只拍背影和手。',
   text: [
     '出事以前有天晚上，老夏喝了酒，骂姜晓龙。',

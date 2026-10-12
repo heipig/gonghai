@@ -858,6 +858,24 @@ body.shake #stage { animation: shake .5s cubic-bezier(.36, .07, .19, .97) both; 
 
 /* ─────────────── 无障碍：尊重减少动效 ─────────────── */
 
+/* 点完一个选项，下一页第一行先应一声。视觉上比正文轻，
+   但要能被认出来是"刚才那一下的结果"。 */
+#text p.echo {
+  color: var(--ink-dim, #9fb0bb);
+  border-left: 2px solid var(--accent-dim, #2c5a63);
+  padding-left: .85rem;
+  margin-bottom: 1.15rem;
+  font-size: .95em;
+  animation: echoIn 1.1s ease both;
+}
+
+@keyframes echoIn {
+  from { opacity: 0; transform: translateX(-6px); }
+  to   { opacity: 1; transform: none; }
+}
+
+body.reduce-motion #text p.echo { animation: none; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: .01ms !important;
