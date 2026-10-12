@@ -36,10 +36,7 @@ a2_hijack: {
     { label: '往大甲板走，离船长室远一点。', to: 'a2_xia',
       effect: { body: -2, standing: +1 } },
     { label: '把马玉超从下铺拉起来，带在身边。', to: 'a2_xia',
-      effect: { rel: { ma: +2 }, body: -5, flags: { kept_ma_close: true } } },
-    { label: '你下机舱，把主机转速稳住。', to: 'a2_xia',
-      effect: { body: -3, standing: +5, flags: { held_engine: true } },
-      require: { flag: 'assigned_engine', why: '你不在机舱干活，摸不清主机。' } }
+      effect: { rel: { ma: +2 }, body: -5, flags: { kept_ma_close: true } } }
   ]
 },
 
@@ -47,6 +44,7 @@ a2_xia: {
   id: 'a2_xia', act: '第二幕', place: '楼梯口', date: '2011 年 6 月 16 日 23:40',
   mood: 'blood', ambience: 'sea-tense', day: 172, img: 'img/barrel.jpg',
   text: [
+    { t: '船头调过来之前，你就把马玉超从下铺拉起来了。他一直跟着你。', if: { flag: 'kept_ma_close' } },
     '大师傅老夏听见动静，从厨房里冲出来，手里拿着刀。',
     '他往船长室那边冲。',
     { t: '「这帮小逼崽子还想劫船。」', cls: 'shout' },
@@ -92,6 +90,8 @@ a2_silence: {
   mood: 'blood', ambience: 'quiet', day: 175,
   imgSlot: '一只拖鞋丢在舱室地上，鞋面上是已经发黑的血。只拍物，不拍人。',
   text: [
+    { t: '第二天你照常上了工。手上的活没停，脑子一直没转。', if: { flag: 'kept_working' } },
+    { t: '你把老夏的东西收进了一个纸箱。你不知道要交给谁。', if: { flag: 'kept_xia_things' } },
     '黄金波一直手抖。他抖了好几天。',
     '他说他只是想回家，他说他没想干这个。',
     '他拖鞋上全是血。他把那双拖鞋扔了，后来一直光着脚。',
@@ -104,8 +104,8 @@ a2_silence: {
       effect: { rel: { huang: +2 }, body: -2 } },
     { label: '把自己的铺位也挪到靠墙那边。', to: 'n_quiet',
       effect: { body: -1, flags: { moved_bunk: true } } },
-    { label: '去机舱。机器不会骗人。', to: 'n_quiet',
-      effect: { body: -4, standing: +3 } }
+    { label: '一个人去船尾坐着。那里没别人。', to: 'n_quiet',
+      effect: { body: -3, flags: { sat_alone: true } } }
   ]
 },
 
@@ -118,7 +118,7 @@ n_quiet: {
   text: [
     '船按着罗盘往西走。按这个走法，还有十几天就能到。',
     '可这十几天没有人熬得住。',
-    '你把每天的钓组收好，把机舱的温度记在本子上。',
+    '你把每天的钓组收好，把日子记在本子上。',
     '你还活着。这一点让你每天夜里都醒一次。'
   ]
 },
@@ -130,17 +130,20 @@ a2_fuel: {
   mood: 'tense', ambience: 'engine', day: 192,
   imgSlot: '机舱口，一个人站在楼梯下往上说话，上面有人俯身看着他。逆光。',
   text: [
-    '有一天刘贵夺下来找你。他站在机舱楼梯口，没往下走。',
+    { t: '有一天刘贵夺下来找你。他站在机舱楼梯口，没往下走。', if: { noneOf: ['peeked_engine', 'saw_engine_room', 'hid_in_engine'] } },
+    { t: '有一天刘贵夺来找你。他记得你下过机舱。', unless: { noneOf: ['peeked_engine', 'saw_engine_room', 'hid_in_engine'] } },
     { t: '「这几天船的油耗大了好几倍。辅机也少了两个。」', cls: 'q' },
-    { t: '「你是学这个的。是不是有人在底下动手脚？」', cls: 'q' },
+    { t: '「你下去过。底下那几个人，有没有不对劲的？」', cls: 'q' },
     '他疑心很重。这段时间他一会儿说这个在后边捅咕捅咕，一会儿说那个聚堆说话不敢大声。',
     '你看得出来，他要找一个答案。',
     { t: '而你手里正好有一个。', cls: 'inner' }
   ],
   choices: [
-    { label: '「辅机是人拆的，不是坏。有人不想让这船回去。」', to: 'a2_engine',
+    { label: '「底下不像坏了。倒像是有人拆的。」', to: 'a2_engine',
       effect: { flags: { blamed_wendou: true }, standing: +8, rel: { liu: +2 },
-                body: -6 }, tone: 'risk' },
+                body: -6 }, tone: 'risk',
+      require: { anyOf: ['peeked_engine', 'saw_engine_room', 'hid_in_engine'],
+                 why: '你没下过机舱，说不出这个话。' } },
     { label: '「机器老了，正常。别听人瞎说。」', to: 'a2_engine',
       effect: { flags: { covered_engine: true }, rel: { liu: -2 },
                 standing: -3, body: -4 } },
@@ -159,19 +162,24 @@ a2_engine: {
     '你自己下去了。机舱里四十多度，主机的声音把人包起来。',
     '两个辅机的位置空着，螺栓上还留着新拧过的痕迹。',
     '不是坏的，是被人拆下来搬走了。',
-    '你沿着管路往船底走。',
-    '温斗教过你的那根管子在这儿，那头连着一个大阀。',
-    { t: '海底总阀。全船唯一一个能自己把水放进来的东西。', cls: 'inner' },
-    '你站了一会儿。你听见上面有人在走动。'
+    '你沿着管路往船底走。越往下越黑，只剩一盏小灯。',
+    '船底水舱的盖子开着。有人比你先到。',
+    '是王延龙。他蹲在一个大阀边上，手里拿着扳手。',
+    { t: '「你下来干啥。」', cls: 'q' },
+    { t: '「刘哥让我看看辅机。」你说。', cls: 'q' },
+    '他看了你一会儿。没喊人，也没让你上去。',
+    { t: '「这是海底总阀。全船就这一个，能把海水放进来。」', cls: 'q' },
+    { t: '「记住它在哪儿。别跟人说是我说的。」', cls: 'q' },
+    { t: '你分不清他这话是警告，还是别的什么。', cls: 'inner' }
   ],
   choices: [
     { label: '把阀的位置记死在心里。', to: 'a2_fuel_report',
       effect: { flags: { knows_valve: true }, body: -4 } },
-    { label: '动手把阀柄拆下来藏了。', to: 'a2_fuel_report',
+    { label: '趁他走了，把阀柄拆下来藏了。', to: 'a2_fuel_report',
       effect: { flags: { knows_valve: true, hid_valve_handle: true },
                 standing: -4, body: -6 }, tone: 'risk' },
     { label: '上去，什么都不说。', to: 'a2_fuel_report',
-      effect: { body: -3, flags: { knows_valve: true } } }
+      effect: { flags: { knows_valve: true }, body: -3 } }
   ]
 },
 
@@ -205,6 +213,11 @@ a2_speaker: {
   id: 'a2_speaker', act: '第二幕', place: '十二人间', date: '2011 年 7 月 20 日 凌晨',
   mood: 'blood', ambience: 'sea-tense', day: 206, img: 'img/speaker.jpg',
   text: [
+    { t: '你把温斗的名字说出去了。之后刘贵夺就没再正眼看过你。', if: { flag: 'blamed_wendou' }, cls: 'inner' },
+    { t: '你说没查出问题。刘贵夺盯着你看了很久，最后什么也没说就走了。', if: { flag: 'covered_engine' } },
+    { t: '你把王延龙的名字说出去了。你跟他并不熟，你只知道他话少。', if: { flag: 'blamed_wangyanlong' }, cls: 'inner' },
+    { t: '你说你不知道。刘贵夺笑了一下，那个笑很难看。', if: { flag: 'refused_answer' } },
+    { t: '后来你想过很多次：如果那天你换一句话说，会不会不一样。', unless: { anyOf: ['blamed_wendou', 'covered_engine', 'blamed_wangyanlong', 'refused_answer'] } },
     '那天十二点多（北京时间）天就亮了。你醒了，躺在那儿抽烟。',
     '从出事开始，十二人间的人就不多了，在屋里待着的时候也少。',
     '那天你看见好几个床上没有人。',
@@ -231,6 +244,9 @@ a2_wang: {
   id: 'a2_wang', act: '第二幕', place: '十二人间', date: '2011 年 7 月 20 日 凌晨',
   mood: 'blood', ambience: 'sea-tense', day: 206,
   text: [
+    { t: '你躺着没动。你听见自己的心跳比外面的动静还响。', if: { flag: 'lay_still' } },
+    { t: '你把门从里面顶上了。后来你才想起来，顶的是自己人的门。', if: { flag: 'barred_door' } },
+    { t: '你跟着出去了。你站在看得见人的地方，一句话都没说。', if: { flag: 'went_out' } },
     '过了没几分钟，刘成建和包德两个人进来了，拿着刀。',
     '他们直接奔二副王永波的床上去。那阵儿他正在睡觉。',
     '到那儿一人扎了一刀。二副醒了，拿手去够他俩，没够着，直接掉地下了。',
@@ -261,6 +277,9 @@ a2_brother: {
   id: 'a2_brother', act: '第二幕', place: '十二人间', date: '2011 年 7 月 20 日 凌晨',
   mood: 'blood', ambience: 'sea-tense', day: 206,
   text: [
+    { t: '你半躺在床上，一动没动。', if: { flag: 'froze' } },
+    { t: '你喊了一声「刘哥」。他回头看了你一眼，又转回去了。', if: { flag: 'called_out' } },
+    { t: '你过去帮他把人抬起来。你的手是干净地伸出去的。', if: { flag: 'helped_kill' } },
     '刘贵夺动完手，站起来，四周看看，转过身看着你。',
     { t: '「当初让你加入你不加入，现在知道害怕了？」', cls: 'q' },
     '他那表情感觉挺兴奋，还满脸带笑。',

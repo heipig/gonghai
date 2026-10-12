@@ -148,6 +148,9 @@
   /* 逐段、逐字显示。点任意处可一次显示完。*/
   function typeOut(container, items, done) {
     container.innerHTML = '';
+    /* 条件行在这里统一筛掉——这是所有正文的唯一漏斗，
+       所以带 if/unless 的"回声行"在哪儿都不会漏出来。 */
+    items = E.visibleText(items);
 
     var token = {};
     typing = token;
@@ -449,7 +452,7 @@
 
     var body = $('#ending-body');
     body.innerHTML = '';
-    (ending.body || []).forEach(function (it) { body.appendChild(makePara(it)); });
+    (E.visibleText(ending.body) || []).forEach(function (it) { body.appendChild(makePara(it)); });
 
     // 结算面板
     var s = E.state;

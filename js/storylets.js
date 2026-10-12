@@ -28,6 +28,7 @@
 
 s_dice: {
   id: 's_dice', storylet: true, pool: 'act1', weight: 2,
+  require: { flag: 'phase_peru', why: '往秘鲁去的那四十天早就过去了。' },
   act: '夜', place: '十二人间', mood: 'calm', ambience: 'sea',
   imgSlot: '十二人间里围着一盏灯推牌九，一堆皱钞票。看不清脸。',
   text: [
@@ -158,6 +159,7 @@ s_ma_diary: {
 
 s_jiang_kneel: {
   id: 's_jiang_kneel', storylet: true, pool: 'act1', weight: 2, once: true,
+  require: { noneOf: ['phase_plan'], why: '这事后来你亲眼见过，不用别人再讲一遍。' },
   act: '夜', place: '食堂', mood: 'tense', ambience: 'quiet',
   imgSlot: '食堂里一个人跪在地上，另一个人站着。只拍背影和手。',
   text: [
@@ -180,12 +182,13 @@ s_jiang_kneel: {
 s_seasick: {
   id: 's_seasick', storylet: true, pool: 'act1', weight: 2, once: true,
   act: '夜', place: '铺上', mood: 'calm', ambience: 'sea',
+  require: { flag: 'phase_peru', why: '那半个月早就过去了。' },
   text: [
-    '你一直吐，一天吐好几回。',
+    '晕船那半个月，你记得最清楚的是一只塑料袋。',
+    '有人给你递过来，什么都没说，转身就走了。',
     '吃什么都留不住，喝口水也吐出去。',
-    '有人给你递了个塑料袋，什么都没说，转身就走了。',
-    '你就抱着那个塑料袋躺着。船在走，天花板在转。',
-    '第十六天，忽然就好了。',
+    '你就抱着那只塑料袋躺着。船在走，天花板在转。',
+    { t: '第十六天，忽然就好了。', cls: 'beat' },
     '那天你第一次自己走到甲板上，闻见了柴油味，觉得还挺好闻。',
     '你把塑料袋洗干净还了回去。那个人已经忘了这回事。'
   ],
@@ -215,6 +218,7 @@ s_fish_night: {
 
 s_mail: {
   id: 's_mail', storylet: true, pool: 'act1', weight: 2,
+  require: { flag: 'phase_fishing', why: '信是到秘鲁之后才捎上来的。' },
   act: '夜', place: '甲板', mood: 'calm', ambience: 'sea',
   text: [
     '到秘鲁第二个月，公司让收购船捎上来一批信。',

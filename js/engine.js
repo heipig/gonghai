@@ -208,6 +208,28 @@
     return { ok: true };
   };
 
+  /* ── 正文行的条件筛选 ──────────────────────────────────── */
+
+  /* 一个选项选完之后，下一屏往往需要"回应"前面那一步——
+     比如「你说不参加，他就把刀收了回去」。
+     没有这个东西，每一屏都像从天而降，玩家会明显觉得接不上：
+     选了什么、下一条又说什么，两者之间没有因果关系。
+
+     用法（条件字段和支持的写法跟选项的 require 完全一样，直接复用 check）：
+       { t: '……', cls: 'q', if:     { flag: 'refused' } }
+       { t: '……',           unless: { bloodMin: 1 } }
+
+     `if` 满足才显示，`unless` 满足就不显示。纯字符串永远显示。 */
+  Engine.visibleText = function (items) {
+    var self = this;
+    return (items || []).filter(function (it) {
+      if (typeof it === 'string') return true;
+      if (it.if && !self.check(it.if).ok) return false;
+      if (it.unless && self.check(it.unless).ok) return false;
+      return true;
+    });
+  };
+
   /* ── 做选择 ────────────────────────────────────────────── */
 
   Engine.choose = function (index) {

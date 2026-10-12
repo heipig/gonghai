@@ -38,8 +38,9 @@ a3_valve: {
     '你当时躺着，听外面乱七八糟的，心里寻思又出事儿了。',
     '之后听出不对劲——船坏了，海底总阀被人打开了。',
     { t: '报道里说，只有王延龙一个人知道总阀在哪儿。', cls: 'inner' },
-    '水进得挺快。有人去开水泵，把水往抽，不好使。',
-    { t: '而你，是这条船上唯一一个还活着、并且也学过这个的人。', cls: 'inner' }
+    { t: '他们不知道，底下那天还有第二个人在听。', if: { flag: 'knows_valve' }, cls: 'inner' },
+    { t: '你把阀柄拆下来藏在铺底下了。所以他这次开得比谁都快——他早就想好了不靠那个柄。', if: { flag: 'hid_valve_handle' }, cls: 'inner' },
+    '水进得挺快。有人去开水泵，把水往外抽，不好使。'
   ],
   choices: [
     { label: '下机舱，把阀关上。', to: 'a3_raft',
@@ -61,6 +62,8 @@ a3_raft: {
   id: 'a3_raft', act: '第三幕', place: '右舷', date: '2011 年 7 月 25 日 清晨',
   mood: 'blood', ambience: 'sea-tense', day: 213, img: 'img/raft.jpg',
   text: [
+    { t: '你下去关过阀，没关住。上来的时候衣服全湿了。', if: { flag: 'closed_valve' } },
+    { t: '你下去看过一眼。水是从一个口子里往里灌的，你什么也做不了。', if: { flag: 'saw_valve' } },
     '船上有些木头、床板。你们连钉带绑做筏子，把能吃的往上装，然后放下水。',
     '你正在收拾救生筏，大副付义忠上了木筏。',
     '他一边笑一边冲你招手。',
@@ -132,7 +135,9 @@ a3_song: {
     { t: '「薅上来吧。」', cls: 'q' },
     '你和黄金波把他拉上来。他脑袋在流血，你找了纸巾给他擦擦。',
     { t: '这时候船长走到刘贵夺跟前，说了这一夜最要命的一句话。', cls: 'beat' },
-    { t: '「赵木成和项立山怎么办？救援要来了，他俩还没沾血。」', cls: 'shout' }
+    { t: '「赵木成和项立山怎么办？救援要来了，他俩还没沾血。」', cls: 'shout' },
+    { t: '他点了两个名字。你不在里面。', unless: { bloodMin: 1 }, cls: 'inner' },
+    { t: '——要么是他忘了你，要么是他觉得你跑不掉。你想不出哪一种更糟。', unless: { bloodMin: 1 }, cls: 'inner' }
   ],
   choices: [
     { label: '「我来。」你把刀接过来。', to: 'a3_song2',
@@ -153,6 +158,9 @@ a3_song2: {
   id: 'a3_song2', act: '第三幕', place: '右舷甲板', date: '2011 年 7 月 25 日 上午',
   mood: 'blood', ambience: 'sea-tense', day: 213,
   text: [
+    { t: '你把刀接了过来。所以现在，轮到别人看着你。', if: { flag: 'took_ma_place' }, cls: 'inner' },
+    { t: '你说了「绑起来扔下去得了」。刘贵夺听了你的。', if: { flag: 'gave_the_order' }, cls: 'inner' },
+    { t: '你替赵木成说了话。说完你就知道，这话不该说出口。', if: { flag: 'spoke_for_ma' } },
     '项立山立刻拿起一把鱼刀，准备捅宋国春。',
     '刘贵夺没让。',
     { t: '「别捅了，你俩绑起来，扔下去得了。」', cls: 'q' },
@@ -222,7 +230,7 @@ a3_iron2: {
     { label: '你转身下机舱。你知道那个阀在哪儿。', to: 'e_valve',
       effect: { flags: { opened_valve: true }, standing: -10, body: -12 },
       require: { flag: 'knows_valve',
-        why: '你不知道海底总阀在哪儿。' }, tone: 'risk' }
+        why: '你不知道海底总阀在哪儿——你从来没下到过船底。' }, tone: 'risk' }
   ]
 },
 
@@ -276,6 +284,8 @@ a3_trial: {
   id: 'a3_trial', act: '第三幕', place: '威海 · 法庭', date: '2013 年 7 月 19 日',
   mood: 'calm', ambience: 'quiet', day: 302, img: 'img/court.jpg',
   text: [
+    { t: '在车上你就全说了。所以到了这一步，你手里没有别的东西可以交出去。', if: { flag: 'told_truth' } },
+    { t: '你照着那张纸条说了。说的时候你自己都不信。', if: { flag: 'lied_first' } },
     '审你的时候，你说包德杀了人逃跑了。',
     '审你的人说：',
     { t: '「你说的这个，要是我跟你说，你自己会不会信？」', cls: 'q' },
